@@ -162,4 +162,14 @@
     font-feature-settings: "tnum";
     letter-spacing: -0.01em;
   }
+
+  /* Hero background SVG — pause SMIL animations when the user prefers
+     reduced motion. SMIL doesn't honor prefers-reduced-motion natively; this
+     hides the <animate> + <animateMotion> elements so the SVG renders static. */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-bg-svg animate,
+    .hero-bg-svg animateMotion {
+      display: none;
+    }
+  }
 }

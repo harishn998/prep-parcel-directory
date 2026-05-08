@@ -1,10 +1,11 @@
+import Link from "next/link";
 import { MapPin, Star, BadgeCheck } from "lucide-react";
 import type { Partner } from "@/lib/sample-data";
 
 export function PartnerCard({ partner }: { partner: Partner }) {
   return (
-    <a
-      href={`#${partner.slug}`}
+    <Link
+      href={`/directory/${partner.slug}`}
       className="lift-card group flex flex-col rounded-xl border border-border-soft bg-surface p-7"
     >
       <div className="flex items-start gap-4">
@@ -62,6 +63,6 @@ export function PartnerCard({ partner }: { partner: Partner }) {
           </span>
         ))}
       </div>
-    </a>
+    </Link>
   );
 }

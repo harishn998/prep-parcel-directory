@@ -3,18 +3,9 @@
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import { popularSearchChips } from "@/lib/sample-data";
+import { HeroBg } from "./hero-bg";
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0 },
-};
-
-const container = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.08, delayChildren: 0.05 },
-  },
-};
+const EASE = [0.22, 1, 0.36, 1] as const;
 
 export function Hero() {
   return (
@@ -23,7 +14,10 @@ export function Hero() {
       style={{ minHeight: 640 }}
       aria-label="Hero"
     >
-      {/* Subtle radial wash behind hero */}
+      {/* Logistics-network background */}
+      <HeroBg />
+
+      {/* Static top-edge wash */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -33,16 +27,12 @@ export function Hero() {
         }}
       />
 
-      <div className="relative mx-auto flex min-h-[640px] max-w-[1280px] flex-col items-center justify-center px-6 py-20 text-center md:px-8 md:py-28">
-        <motion.div
-          variants={container}
-          initial="hidden"
-          animate="visible"
-          className="flex w-full max-w-[860px] flex-col items-center"
-        >
+      <div className="relative z-10 mx-auto flex min-h-[640px] max-w-[1280px] flex-col items-center justify-center px-6 py-20 text-center md:px-8 md:py-28">
+        <div className="flex w-full max-w-[860px] flex-col items-center">
           <motion.span
-            variants={fadeUp}
-            transition={{ duration: 0.5, ease: [0.22, 0.61, 0.36, 1] }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0, ease: EASE }}
             className="mb-6 inline-flex items-center gap-2 rounded-full border border-border-soft bg-surface px-3.5 py-1.5 text-[13px] font-medium text-text-2 shadow-sm"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-success" />
@@ -50,8 +40,9 @@ export function Hero() {
           </motion.span>
 
           <motion.h1
-            variants={fadeUp}
-            transition={{ duration: 0.55, ease: [0.22, 0.61, 0.36, 1] }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.15, ease: EASE }}
             className="text-[44px] font-semibold leading-[1.05] tracking-[-0.025em] text-text sm:text-[60px] md:text-[72px] lg:text-[80px]"
             style={{ fontWeight: 600 }}
           >
@@ -61,8 +52,9 @@ export function Hero() {
           </motion.h1>
 
           <motion.p
-            variants={fadeUp}
-            transition={{ duration: 0.55, ease: [0.22, 0.61, 0.36, 1] }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3, ease: EASE }}
             className="mt-6 max-w-[640px] text-[17px] leading-[1.6] text-text-2 sm:text-[19px]"
           >
             Compare vetted 3PL warehouses, prep centers, and fulfillment
@@ -71,32 +63,41 @@ export function Hero() {
           </motion.p>
 
           <motion.div
-            variants={fadeUp}
-            transition={{ duration: 0.55, ease: [0.22, 0.61, 0.36, 1] }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.45, ease: EASE }}
             className="mt-10 w-full max-w-[720px]"
           >
             <SearchBar />
           </motion.div>
 
-          <motion.div
-            variants={fadeUp}
-            transition={{ duration: 0.55, ease: [0.22, 0.61, 0.36, 1] }}
-            className="mt-6 flex flex-wrap items-center justify-center gap-2"
-          >
-            <span className="text-[13px] font-medium text-text-3">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+            <motion.span
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.7, ease: EASE }}
+              className="text-[13px] font-medium text-text-3"
+            >
               Popular:
-            </span>
-            {popularSearchChips.map((chip) => (
-              <button
+            </motion.span>
+            {popularSearchChips.map((chip, idx) => (
+              <motion.button
                 key={chip}
                 type="button"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.5,
+                  delay: 0.7 + idx * 0.06,
+                  ease: EASE,
+                }}
                 className="rounded-full border border-border-soft bg-surface px-3.5 py-1.5 text-[13px] font-medium text-text-2 transition-all duration-200 hover:border-blue hover:text-navy hover:shadow-sm"
               >
                 {chip}
-              </button>
+              </motion.button>
             ))}
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   );

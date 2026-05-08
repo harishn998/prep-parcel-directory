@@ -7,7 +7,6 @@ import {
   Boxes,
   Globe,
   Scale,
-  ArrowUpRight,
 } from "lucide-react";
 import type { Category, CategoryIconKey } from "@/lib/sample-data";
 import { categories } from "@/lib/sample-data";
@@ -60,11 +59,12 @@ export function BrowseCategories() {
 function CategoryCard({ category }: { category: Category }) {
   const Icon = iconMap[category.iconKey];
   return (
-    <a
-      href={`#${category.slug}`}
-      className="lift-card group relative flex flex-col rounded-xl border border-border-soft bg-surface p-7"
-    >
-      <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-lg bg-secondary text-navy transition-colors duration-200 group-hover:bg-blue group-hover:text-white">
+    <div className="relative flex flex-col rounded-xl border border-border-soft bg-surface p-7">
+      <span className="absolute right-5 top-5 font-mono text-[11px] font-medium text-text-3">
+        Coming soon
+      </span>
+
+      <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-lg bg-secondary text-navy">
         <Icon className="h-5 w-5" strokeWidth={2} />
       </div>
 
@@ -77,11 +77,6 @@ function CategoryCard({ category }: { category: Category }) {
       <p className="mt-3 text-[14px] leading-[1.55] text-text-2">
         {category.description}
       </p>
-
-      <ArrowUpRight
-        className="absolute right-6 top-6 h-4 w-4 text-text-3 opacity-0 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-blue group-hover:opacity-100"
-        strokeWidth={2}
-      />
-    </a>
+    </div>
   );
 }

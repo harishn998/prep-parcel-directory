@@ -29,11 +29,14 @@ export function BrowseLocations() {
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
           {locations.map((location) => (
-            <a
+            <div
               key={location.slug}
-              href={`#${location.slug}`}
-              className="lift-card group relative flex flex-col overflow-hidden rounded-2xl border border-border-soft bg-background p-8"
+              className="relative flex flex-col overflow-hidden rounded-2xl border border-border-soft bg-background p-8"
             >
+              <span className="absolute right-5 top-5 font-mono text-[11px] font-medium text-text-3">
+                Coming soon
+              </span>
+
               {/* Decorative country mark */}
               <div className="mb-8 flex h-16 w-16 items-center justify-center rounded-xl bg-navy text-white">
                 <span
@@ -64,14 +67,11 @@ export function BrowseLocations() {
                 </span>
               </div>
 
-              <span className="mt-8 inline-flex items-center gap-1.5 text-[14px] font-medium text-blue transition-colors duration-200 group-hover:text-navy">
+              <span className="mt-8 inline-flex items-center gap-1.5 text-[14px] font-medium text-text-3">
                 Explore
-                <ArrowRight
-                  className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
-                  strokeWidth={2}
-                />
+                <ArrowRight className="h-4 w-4" strokeWidth={2} />
               </span>
-            </a>
+            </div>
           ))}
         </div>
       </div>
