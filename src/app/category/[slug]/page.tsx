@@ -19,7 +19,7 @@ import {
 import {
   getPartnersByCategory,
   getPartnersByCategoryAndState,
-} from "@/lib/sample-data";
+} from "@/lib/data/partners";
 
 const SITE_URL = "https://prepparcelpartners.example";
 
@@ -36,7 +36,7 @@ export async function generateMetadata({
   const category = getCategoryBySlug(slug);
   if (!category) return { title: "Category not found — Prep Parcel Partners" };
 
-  const partnerCount = getPartnersByCategory(slug).length;
+  const partnerCount = (await getPartnersByCategory(slug)).length;
   const title = `${category.name} — Compare ${partnerCount} Verified 3PL Partners | Prep Parcel`;
   const description = `Compare ${partnerCount} vetted ${category.name.toLowerCase()} partners on Prep Parcel. ${category.description}`;
   const url = `${SITE_URL}/category/${slug}`;
@@ -69,7 +69,7 @@ export default async function CategoryPage({
   const category = getCategoryBySlug(slug);
   if (!category) notFound();
 
-  const matched = getPartnersByCategory(slug);
+  const matched = await getPartnersByCategory(slug);
   const stateCounts = new Map<string, number>();
   for (const p of matched) {
     for (const s of p.servedStates) {
@@ -84,12 +84,22 @@ export default async function CategoryPage({
 
   // Top 5 states by partner count (only states that exist in taxonomy)
   const validStates = new Set(allStates().map((s) => s.slug));
-  const topStateLinks = Array.from(stateCounts.entries())
-    .filter(([slug]) => validStates.has(slug))
-    .filter(([slug]) => getPartnersByCategoryAndState(category.slug, slug).length > 0)
-    .sort((a, b) => b[1] - a[1])
+  const stateEntries = Array.from(stateCounts.entries()).filter(
+    ([slug]) => validStates.has(slug)
+  );
+  const stateEntriesWithMatches = await Promise.all(
+    stateEntries.map(async ([slug, count]) => ({
+      slug,
+      count,
+      hasPartners:
+        (await getPartnersByCategoryAndState(category.slug, slug)).length > 0,
+    }))
+  );
+  const topStateLinks = stateEntriesWithMatches
+    .filter((x) => x.hasPartners)
+    .sort((a, b) => b.count - a.count)
     .slice(0, 6)
-    .map(([stateSlug, count]) => {
+    .map(({ slug: stateSlug, count }) => {
       const state = allStates().find((s) => s.slug === stateSlug)!;
       const country = getCountryForState(stateSlug)!;
       return {

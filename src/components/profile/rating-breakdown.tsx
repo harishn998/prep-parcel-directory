@@ -1,5 +1,5 @@
 import { Star } from "lucide-react";
-import type { Partner } from "@/lib/sample-data";
+import type { Partner } from "@/lib/data/types";
 import { StarRating } from "./star-rating";
 
 export function RatingBreakdown({ partner }: { partner: Partner }) {

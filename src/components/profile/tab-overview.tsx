@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { PackageCheck, Boxes, Truck } from "lucide-react";
 import { useCountUp } from "@/hooks/use-count-up";
-import type { Partner } from "@/lib/sample-data";
+import type { Partner } from "@/lib/data/types";
 
 const offers = [
   {

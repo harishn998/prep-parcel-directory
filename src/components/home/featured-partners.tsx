@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { partners } from "@/lib/sample-data";
+import { getAllPartners } from "@/lib/data/partners";
 import { PartnerCard } from "./partner-card";
 
-export function FeaturedPartners() {
+export async function FeaturedPartners() {
+  const partners = await getAllPartners();
   return (
     <section
       className="section bg-background"

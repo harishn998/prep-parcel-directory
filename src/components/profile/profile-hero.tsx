@@ -13,10 +13,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
-import {
-  coverGradientCss,
-  type Partner,
-} from "@/lib/sample-data";
+import { coverGradientCss } from "@/lib/static-data";
+import type { Partner } from "@/lib/data/types";
 
 const COUNTRY_SLUG_MAP = {
   USA: "usa",

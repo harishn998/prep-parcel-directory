@@ -1,6 +1,6 @@
 "use client";
 
-import { stats, type Stat } from "@/lib/sample-data";
+import { stats, type Stat } from "@/lib/static-data";
 import { useCountUp } from "@/hooks/use-count-up";
 
 export function StatsStrip() {

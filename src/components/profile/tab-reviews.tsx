@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import type { Partner } from "@/lib/sample-data";
+import type { Partner } from "@/lib/data/types";
 import { RatingBreakdown } from "./rating-breakdown";
 import { ReviewCard } from "./review-card";
 

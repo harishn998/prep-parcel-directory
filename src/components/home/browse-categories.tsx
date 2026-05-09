@@ -10,8 +10,8 @@ import {
   Scale,
   ArrowUpRight,
 } from "lucide-react";
-import type { Category, CategoryIconKey } from "@/lib/sample-data";
-import { categories } from "@/lib/sample-data";
+import type { Category, CategoryIconKey } from "@/lib/static-data";
+import { categories } from "@/lib/static-data";
 
 const iconMap: Record<CategoryIconKey, typeof Package> = {
   package: Package,

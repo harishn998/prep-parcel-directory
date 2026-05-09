@@ -6,7 +6,8 @@
  * content penalties. Slugs are the SEO-canonical URL fragments.
  */
 
-import type { CategoryIconKey, CountryName } from "./sample-data";
+import type { CategoryIconKey } from "./static-data";
+import type { CountryName } from "./data/types";
 
 // ---------------------------------------------------------------------------
 // Types

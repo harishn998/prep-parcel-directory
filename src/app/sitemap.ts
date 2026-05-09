@@ -1,19 +1,16 @@
 import type { MetadataRoute } from "next";
+import { CATEGORIES, COUNTRIES } from "@/lib/taxonomy";
 import {
-  CATEGORIES,
-  COUNTRIES,
-} from "@/lib/taxonomy";
-import {
-  partners,
+  getAllPartnerSlugs,
   getPartnersByCity,
   getPartnersByState,
   getPartnersByCategoryAndState,
-} from "@/lib/sample-data";
+} from "@/lib/data/partners";
 
 const BASE = "https://prepparcelpartners.example";
 const NOW = new Date();
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
 
   // Home
@@ -47,9 +44,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   });
 
   // Partner profiles
-  for (const p of partners) {
+  const slugs = await getAllPartnerSlugs();
+  for (const slug of slugs) {
     entries.push({
-      url: `${BASE}/directory/${p.slug}`,
+      url: `${BASE}/directory/${slug}`,
       lastModified: NOW,
       changeFrequency: "monthly",
       priority: 0.6,
@@ -66,7 +64,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     });
   }
 
-  // Country pages
+  // Country pages — collect (country, state, city) candidates and check counts in parallel
+  type StateEntry = { country: string; state: string };
+  type CityEntry = StateEntry & { city: string };
+  type ComboEntry = { cat: string; country: string; state: string };
+
+  const stateCandidates: StateEntry[] = [];
+  const cityCandidates: CityEntry[] = [];
+  const comboCandidates: ComboEntry[] = [];
+
   for (const country of COUNTRIES) {
     entries.push({
       url: `${BASE}/location/${country.slug}`,
@@ -75,46 +81,78 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     });
 
-    // State pages
     for (const state of country.states) {
-      if (getPartnersByState(state.slug).length === 0) continue;
-      entries.push({
-        url: `${BASE}/location/${country.slug}/${state.slug}`,
-        lastModified: NOW,
-        changeFrequency: "monthly",
-        priority: 0.7,
-      });
-
-      // City pages
+      stateCandidates.push({ country: country.slug, state: state.slug });
       for (const city of state.cities) {
-        if (getPartnersByCity(city.slug).length === 0) continue;
-        entries.push({
-          url: `${BASE}/location/${country.slug}/${state.slug}/${city.slug}`,
-          lastModified: NOW,
-          changeFrequency: "monthly",
-          priority: 0.6,
+        cityCandidates.push({
+          country: country.slug,
+          state: state.slug,
+          city: city.slug,
         });
       }
     }
   }
 
-  // Combo pages (category × state) — highest SEO value
   for (const cat of CATEGORIES) {
     for (const country of COUNTRIES) {
       for (const state of country.states) {
-        if (
-          getPartnersByCategoryAndState(cat.slug, state.slug).length === 0
-        ) {
-          continue;
-        }
-        entries.push({
-          url: `${BASE}/category/${cat.slug}/${country.slug}/${state.slug}`,
-          lastModified: NOW,
-          changeFrequency: "monthly",
-          priority: 0.8,
+        comboCandidates.push({
+          cat: cat.slug,
+          country: country.slug,
+          state: state.slug,
         });
       }
     }
+  }
+
+  const [statesWithCounts, citiesWithCounts, combosWithCounts] =
+    await Promise.all([
+      Promise.all(
+        stateCandidates.map(async (s) => ({
+          ...s,
+          count: (await getPartnersByState(s.state)).length,
+        }))
+      ),
+      Promise.all(
+        cityCandidates.map(async (c) => ({
+          ...c,
+          count: (await getPartnersByCity(c.city)).length,
+        }))
+      ),
+      Promise.all(
+        comboCandidates.map(async (c) => ({
+          ...c,
+          count: (await getPartnersByCategoryAndState(c.cat, c.state)).length,
+        }))
+      ),
+    ]);
+
+  for (const s of statesWithCounts) {
+    if (s.count === 0) continue;
+    entries.push({
+      url: `${BASE}/location/${s.country}/${s.state}`,
+      lastModified: NOW,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    });
+  }
+  for (const c of citiesWithCounts) {
+    if (c.count === 0) continue;
+    entries.push({
+      url: `${BASE}/location/${c.country}/${c.state}/${c.city}`,
+      lastModified: NOW,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    });
+  }
+  for (const c of combosWithCounts) {
+    if (c.count === 0) continue;
+    entries.push({
+      url: `${BASE}/category/${c.cat}/${c.country}/${c.state}`,
+      lastModified: NOW,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    });
   }
 
   return entries;

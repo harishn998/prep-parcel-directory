@@ -1,5 +1,5 @@
 import { ThumbsUp, BadgeCheck } from "lucide-react";
-import type { Review } from "@/lib/sample-data";
+import type { Review } from "@/lib/data/types";
 import { StarRating } from "./star-rating";
 
 const palette = [

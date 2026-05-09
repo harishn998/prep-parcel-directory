@@ -16,7 +16,7 @@ import {
 import {
   getPartnersByCountry,
   getPartnersByState,
-} from "@/lib/sample-data";
+} from "@/lib/data/partners";
 
 const SITE_URL = "https://prepparcelpartners.example";
 
@@ -33,7 +33,7 @@ export async function generateMetadata({
   const country = getCountryBySlug(countrySlug);
   if (!country) return { title: "Country not found — Prep Parcel Partners" };
 
-  const partnerCount = getPartnersByCountry(country.fullName).length;
+  const partnerCount = (await getPartnersByCountry(country.fullName)).length;
   const stateCount = country.states.length;
   const title = `3PL & Fulfillment Partners in ${country.name} — Compare ${partnerCount} Verified Providers | Prep Parcel`;
   const description = `Browse ${partnerCount} vetted 3PL warehouses and fulfillment partners across ${country.name}. Filter by service, state, integrations, and more. ${stateCount} states covered.`;
@@ -67,15 +67,15 @@ export default async function CountryPage({
   const country = getCountryBySlug(countrySlug);
   if (!country) notFound();
 
-  const matched = getPartnersByCountry(country.fullName);
+  const matched = await getPartnersByCountry(country.fullName);
   const avgRating =
     matched.length > 0
       ? matched.reduce((sum, p) => sum + p.rating, 0) / matched.length
       : 0;
 
-  const stateLinks = country.states
-    .map((state) => {
-      const stateMatched = getPartnersByState(state.slug);
+  const stateLinkCandidates = await Promise.all(
+    country.states.map(async (state) => {
+      const stateMatched = await getPartnersByState(state.slug);
       const topServiceSlugs: string[] = [];
       const seen = new Set<string>();
       for (const p of stateMatched) {
@@ -97,10 +97,11 @@ export default async function CountryPage({
         description: topServices ? `Top services: ${topServices}` : undefined,
       };
     })
-    .filter((link) => {
-      const m = parseInt(link.meta?.split(" ")[0] ?? "0", 10);
-      return m > 0;
-    });
+  );
+  const stateLinks = stateLinkCandidates.filter((link) => {
+    const m = parseInt(link.meta?.split(" ")[0] ?? "0", 10);
+    return m > 0;
+  });
 
   // "Popular categories in [Country]" — top 6 categories by partner count in this country
   const categoryCounts = CATEGORIES.map((cat) => ({

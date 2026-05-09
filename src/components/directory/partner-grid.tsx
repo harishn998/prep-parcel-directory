@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { Partner } from "@/lib/sample-data";
+import type { Partner } from "@/lib/data/types";
 import { PartnerCard } from "@/components/home/partner-card";
 import { PartnerCardSkeleton } from "./partner-card-skeleton";
 import { EmptyState } from "./empty-state";

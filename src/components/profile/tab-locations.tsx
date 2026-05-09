@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Building2, Clock } from "lucide-react";
-import type { Partner } from "@/lib/sample-data";
+import type { Partner } from "@/lib/data/types";
 import { MapPlaceholder } from "./map-placeholder";
 
 export function TabLocations({ partner }: { partner: Partner }) {

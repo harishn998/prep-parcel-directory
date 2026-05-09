@@ -15,26 +15,32 @@ import {
   getCityBySlug,
   getCountryBySlug,
 } from "@/lib/taxonomy";
-import { getPartnersByCity, getPartnersByState } from "@/lib/sample-data";
+import { getPartnersByCity, getPartnersByState } from "@/lib/data/partners";
 
 const SITE_URL = "https://prepparcelpartners.example";
 
 export async function generateStaticParams() {
-  const params: { country: string; state: string; city: string }[] = [];
+  const candidates: { country: string; state: string; city: string }[] = [];
   for (const country of COUNTRIES) {
     for (const state of country.states) {
       for (const city of state.cities) {
-        if (getPartnersByCity(city.slug).length > 0) {
-          params.push({
-            country: country.slug,
-            state: state.slug,
-            city: city.slug,
-          });
-        }
+        candidates.push({
+          country: country.slug,
+          state: state.slug,
+          city: city.slug,
+        });
       }
     }
   }
-  return params;
+  const checks = await Promise.all(
+    candidates.map(async (c) => ({
+      ...c,
+      hasPartners: (await getPartnersByCity(c.city)).length > 0,
+    }))
+  );
+  return checks
+    .filter((c) => c.hasPartners)
+    .map(({ country, state, city }) => ({ country, state, city }));
 }
 
 export async function generateMetadata({
@@ -49,7 +55,7 @@ export async function generateMetadata({
     return { title: "City not found — Prep Parcel Partners" };
   }
   const { city, state } = found;
-  const partnerCount = getPartnersByCity(citySlug).length;
+  const partnerCount = (await getPartnersByCity(citySlug)).length;
   const title = `3PL & Fulfillment Partners in ${city.name} — Compare ${partnerCount} Verified Providers | Prep Parcel`;
   const description = `Compare ${partnerCount} verified 3PL warehouses in ${city.name}, ${state.name}. Local fulfillment, FBA prep, returns, and DTC operations.`;
   const url = `${SITE_URL}/location/${countrySlug}/${stateSlug}/${citySlug}`;
@@ -86,23 +92,27 @@ export default async function CityPage({
     notFound();
   }
   const { city, state } = found;
-  const matched = getPartnersByCity(citySlug);
+  const matched = await getPartnersByCity(citySlug);
 
   // Other cities in the same state with partners
-  const otherCityLinks = state.cities
-    .filter((c) => c.slug !== city.slug)
-    .map((c) => {
-      const count = getPartnersByCity(c.slug).length;
-      return {
-        name: c.name,
-        href: `/location/${countrySlug}/${stateSlug}/${c.slug}`,
-        meta: `${count} partner${count === 1 ? "" : "s"}`,
-      };
-    })
-    .filter((l) => parseInt(l.meta?.split(" ")[0] ?? "0", 10) > 0);
+  const otherCityCandidates = await Promise.all(
+    state.cities
+      .filter((c) => c.slug !== city.slug)
+      .map(async (c) => {
+        const count = (await getPartnersByCity(c.slug)).length;
+        return {
+          name: c.name,
+          href: `/location/${countrySlug}/${stateSlug}/${c.slug}`,
+          meta: `${count} partner${count === 1 ? "" : "s"}`,
+        };
+      })
+  );
+  const otherCityLinks = otherCityCandidates.filter(
+    (l) => parseInt(l.meta?.split(" ")[0] ?? "0", 10) > 0
+  );
 
   // Popular services serving the city — fall back to state-wide combos
-  const stateMatched = getPartnersByState(stateSlug);
+  const stateMatched = await getPartnersByState(stateSlug);
   const popularServiceLinks = CATEGORIES.map((cat) => {
     const stateCount = stateMatched.filter((p) =>
       p.serviceCategories.includes(cat.slug)

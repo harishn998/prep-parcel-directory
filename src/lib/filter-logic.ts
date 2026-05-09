@@ -3,7 +3,8 @@
  * Extracted out of DirectoryView so server-rendered pages (category, location,
  * combo) can pre-narrow the partner list before passing into DirectoryView.
  */
-import type { Partner, SortValue } from "./sample-data";
+import type { Partner } from "./data/types";
+import type { SortValue } from "./static-data";
 
 export type Filters = {
   search: string;

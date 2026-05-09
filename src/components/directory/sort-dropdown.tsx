@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { sortOptions, type SortValue } from "@/lib/sample-data";
+import { sortOptions, type SortValue } from "@/lib/static-data";
 
 export function SortDropdown({
   value,

@@ -16,15 +16,16 @@ import { SimilarPartners } from "@/components/profile/similar-partners";
 import { QuoteFormCard } from "@/components/profile/quote-form-card";
 import { CompareSection } from "@/components/profile/compare-section";
 import {
-  partners,
+  getAllPartnerSlugs,
   getPartnerBySlug,
   getSimilarPartners,
-} from "@/lib/sample-data";
+} from "@/lib/data/partners";
 
 type RouteParams = { slug: string };
 
 export async function generateStaticParams() {
-  return partners.map((p) => ({ slug: p.slug }));
+  const slugs = await getAllPartnerSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -33,7 +34,7 @@ export async function generateMetadata({
   params: Promise<RouteParams>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const partner = getPartnerBySlug(slug);
+  const partner = await getPartnerBySlug(slug);
   if (!partner) {
     return {
       title: "Partner not found — Prep Parcel Partners",
@@ -71,10 +72,10 @@ export default async function PartnerProfilePage({
   params: Promise<RouteParams>;
 }) {
   const { slug } = await params;
-  const partner = getPartnerBySlug(slug);
+  const partner = await getPartnerBySlug(slug);
   if (!partner) notFound();
 
-  const similar = getSimilarPartners(partner.slug, 3);
+  const similar = await getSimilarPartners(partner.slug, 3);
 
   return (
     <>

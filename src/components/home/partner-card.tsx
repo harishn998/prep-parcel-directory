@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { MapPin, Star, BadgeCheck } from "lucide-react";
-import type { Partner } from "@/lib/sample-data";
+import type { Partner } from "@/lib/data/types";
 
 export function PartnerCard({ partner }: { partner: Partner }) {
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { directoryQuickFilters } from "@/lib/sample-data";
+import { directoryQuickFilters } from "@/lib/static-data";
 
 export function QuickFilterStrip({
   active,

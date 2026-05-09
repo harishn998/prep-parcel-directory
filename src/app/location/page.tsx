@@ -9,11 +9,8 @@ import { EditorialContent } from "@/components/shared/editorial-content";
 import { InternalLinks } from "@/components/shared/internal-links";
 import { BreadcrumbSchema } from "@/components/shared/breadcrumb-schema";
 import { COUNTRIES, allStates, getCountryForState } from "@/lib/taxonomy";
-import {
-  locations,
-  getStatePartnerCount,
-  type Location,
-} from "@/lib/sample-data";
+import { locations, type Location } from "@/lib/static-data";
+import { getStatePartnerCount } from "@/lib/data/partners";
 
 const SITE_URL = "https://prepparcelpartners.example";
 
@@ -55,7 +52,7 @@ function topCitiesForCountry(countrySlug: string): string[] {
   return out;
 }
 
-export default function LocationIndexPage() {
+export default async function LocationIndexPage() {
   const breadcrumbItems = [
     { label: "Home", href: "/" },
     { label: "Locations" },
@@ -65,12 +62,14 @@ export default function LocationIndexPage() {
     { name: "Locations", url: `${SITE_URL}/location` },
   ];
 
-  const popularStateLinks = allStates()
-    .map((state) => {
-      const country = getCountryForState(state.slug);
-      const count = getStatePartnerCount(state.slug);
-      return { state, country, count };
-    })
+  const stateRecords = await Promise.all(
+    allStates().map(async (state) => ({
+      state,
+      country: getCountryForState(state.slug),
+      count: await getStatePartnerCount(state.slug),
+    }))
+  );
+  const popularStateLinks = stateRecords
     .filter((x) => x.count > 0 && x.country)
     .sort((a, b) => b.count - a.count)
     .slice(0, 8)

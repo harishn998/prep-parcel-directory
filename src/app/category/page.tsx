@@ -21,7 +21,7 @@ import {
   categories,
   type Category,
   type CategoryIconKey,
-} from "@/lib/sample-data";
+} from "@/lib/static-data";
 
 const SITE_URL = "https://prepparcelpartners.example";
 

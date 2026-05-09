@@ -1,6 +1,6 @@
 import { Breadcrumb } from "@/components/shared/breadcrumb";
 import { SortDropdown } from "./sort-dropdown";
-import type { SortValue } from "@/lib/sample-data";
+import type { SortValue } from "@/lib/static-data";
 
 export function DirectoryPageHeader({
   total,

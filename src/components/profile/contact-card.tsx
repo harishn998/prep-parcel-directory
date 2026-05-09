@@ -2,7 +2,7 @@
 
 import { Phone, Mail, Globe, Copy, Check } from "lucide-react";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
-import type { Partner } from "@/lib/sample-data";
+import type { Partner } from "@/lib/data/types";
 
 export function ContactCard({ partner }: { partner: Partner }) {
   return (

@@ -1,4 +1,4 @@
-import type { Partner } from "@/lib/sample-data";
+import type { Partner } from "@/lib/data/types";
 
 const volumeLabels: Record<string, string> = {
   none: "No minimum",

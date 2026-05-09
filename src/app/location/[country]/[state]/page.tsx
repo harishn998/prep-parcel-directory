@@ -17,21 +17,24 @@ import {
 import {
   getPartnersByState,
   getPartnersByCity,
-} from "@/lib/sample-data";
+} from "@/lib/data/partners";
 
 const SITE_URL = "https://prepparcelpartners.example";
 
 export async function generateStaticParams() {
-  const params: { country: string; state: string }[] = [];
+  const candidates: { country: string; state: string }[] = [];
   for (const country of COUNTRIES) {
     for (const state of country.states) {
-      // Only generate if state has at least one partner
-      if (getPartnersByState(state.slug).length > 0) {
-        params.push({ country: country.slug, state: state.slug });
-      }
+      candidates.push({ country: country.slug, state: state.slug });
     }
   }
-  return params;
+  const checks = await Promise.all(
+    candidates.map(async (c) => ({
+      ...c,
+      hasPartners: (await getPartnersByState(c.state)).length > 0,
+    }))
+  );
+  return checks.filter((c) => c.hasPartners).map(({ country, state }) => ({ country, state }));
 }
 
 export async function generateMetadata({
@@ -45,7 +48,7 @@ export async function generateMetadata({
   if (!country || !state)
     return { title: "Location not found — Prep Parcel Partners" };
 
-  const partnerCount = getPartnersByState(stateSlug).length;
+  const partnerCount = (await getPartnersByState(stateSlug)).length;
   const title = `3PL Partners in ${state.name} — Compare ${partnerCount} Verified Providers | Prep Parcel`;
   const description = `Compare ${partnerCount} verified 3PL warehouses and fulfillment partners serving ${state.name}, ${country.name}. Filter by service, integrations, and certifications.`;
   const url = `${SITE_URL}/location/${countrySlug}/${stateSlug}`;
@@ -79,18 +82,21 @@ export default async function StatePage({
   const state = getStateBySlug(stateSlug);
   if (!country || !state) notFound();
 
-  const matched = getPartnersByState(stateSlug);
+  const matched = await getPartnersByState(stateSlug);
 
-  const cityLinks = state.cities
-    .map((city) => {
-      const cityMatched = getPartnersByCity(city.slug);
+  const cityLinkCandidates = await Promise.all(
+    state.cities.map(async (city) => {
+      const cityMatched = await getPartnersByCity(city.slug);
       return {
         name: city.name,
         href: `/location/${countrySlug}/${stateSlug}/${city.slug}`,
         meta: `${cityMatched.length} partner${cityMatched.length === 1 ? "" : "s"}`,
       };
     })
-    .filter((l) => parseInt(l.meta?.split(" ")[0] ?? "0", 10) > 0);
+  );
+  const cityLinks = cityLinkCandidates.filter(
+    (l) => parseInt(l.meta?.split(" ")[0] ?? "0", 10) > 0
+  );
 
   // Popular [State] services — categories with at least 1 partner
   const categoryLinks = CATEGORIES.map((cat) => {

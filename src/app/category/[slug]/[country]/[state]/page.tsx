@@ -20,26 +20,31 @@ import {
   getCategoryStateContext,
   getStateSpecificFaqs,
 } from "@/lib/taxonomy";
-import { getPartnersByCategoryAndState } from "@/lib/sample-data";
+import { getPartnersByCategoryAndState } from "@/lib/data/partners";
 
 const SITE_URL = "https://prepparcelpartners.example";
 
 export async function generateStaticParams() {
-  const params: { slug: string; country: string; state: string }[] = [];
+  const candidates: { slug: string; country: string; state: string }[] = [];
   for (const cat of CATEGORIES) {
     for (const country of COUNTRIES) {
       for (const state of country.states) {
-        if (getPartnersByCategoryAndState(cat.slug, state.slug).length > 0) {
-          params.push({
-            slug: cat.slug,
-            country: country.slug,
-            state: state.slug,
-          });
-        }
+        candidates.push({
+          slug: cat.slug,
+          country: country.slug,
+          state: state.slug,
+        });
       }
     }
   }
-  return params;
+  const checks = await Promise.all(
+    candidates.map(async (c) => ({
+      ...c,
+      hasPartners:
+        (await getPartnersByCategoryAndState(c.slug, c.state)).length > 0,
+    }))
+  );
+  return checks.filter((c) => c.hasPartners).map(({ slug, country, state }) => ({ slug, country, state }));
 }
 
 export async function generateMetadata({
@@ -54,7 +59,7 @@ export async function generateMetadata({
   if (!category || !country || !state) {
     return { title: "Page not found — Prep Parcel Partners" };
   }
-  const partnerCount = getPartnersByCategoryAndState(slug, stateSlug).length;
+  const partnerCount = (await getPartnersByCategoryAndState(slug, stateSlug)).length;
   const title = `${category.name} in ${state.name} — Compare ${partnerCount} Verified ${country.name} Providers | Prep Parcel`;
   const description = `Compare ${partnerCount} verified ${category.name.toLowerCase()} partners serving ${state.name}, ${country.name} businesses. Filter by integrations, certifications, and minimum order volume.`;
   const url = `${SITE_URL}/category/${slug}/${countrySlug}/${stateSlug}`;
@@ -87,7 +92,7 @@ export default async function CategoryStatePage({
   // Verify country↔state alignment
   if (getCountryForState(stateSlug)?.slug !== countrySlug) notFound();
 
-  const matched = getPartnersByCategoryAndState(slug, stateSlug);
+  const matched = await getPartnersByCategoryAndState(slug, stateSlug);
   if (matched.length === 0) notFound();
 
   // Editorial paragraphs
@@ -105,15 +110,19 @@ export default async function CategoryStatePage({
   ];
 
   // Other states for this category
-  const otherStateLinks = COUNTRIES.flatMap((c) =>
+  const otherStateCandidates = COUNTRIES.flatMap((c) =>
     c.states
       .filter((s) => s.slug !== stateSlug)
-      .map((s) => {
-        const count = getPartnersByCategoryAndState(slug, s.slug).length;
-        return { slug: s.slug, name: s.name, country: c, count };
-      })
-      .filter((x) => x.count > 0)
-  )
+      .map((s) => ({ slug: s.slug, name: s.name, country: c }))
+  );
+  const otherStateWithCounts = await Promise.all(
+    otherStateCandidates.map(async (s) => ({
+      ...s,
+      count: (await getPartnersByCategoryAndState(slug, s.slug)).length,
+    }))
+  );
+  const otherStateLinks = otherStateWithCounts
+    .filter((x) => x.count > 0)
     .sort((a, b) => b.count - a.count)
     .slice(0, 6)
     .map(({ name, slug: sSlug, country: c, count }) => ({
@@ -123,11 +132,14 @@ export default async function CategoryStatePage({
     }));
 
   // Other [State] services
-  const otherCategoryLinks = CATEGORIES.filter((c) => c.slug !== slug)
-    .map((c) => {
-      const count = getPartnersByCategoryAndState(c.slug, stateSlug).length;
-      return { cat: c, count };
-    })
+  const otherCategoryCandidates = CATEGORIES.filter((c) => c.slug !== slug);
+  const otherCategoryWithCounts = await Promise.all(
+    otherCategoryCandidates.map(async (c) => ({
+      cat: c,
+      count: (await getPartnersByCategoryAndState(c.slug, stateSlug)).length,
+    }))
+  );
+  const otherCategoryLinks = otherCategoryWithCounts
     .filter((x) => x.count > 0)
     .sort((a, b) => b.count - a.count)
     .slice(0, 6)

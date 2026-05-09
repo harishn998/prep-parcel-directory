@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, MapPin, Star } from "lucide-react";
-import type { Partner } from "@/lib/sample-data";
+import type { Partner } from "@/lib/data/types";
 
 export function SimilarPartners({ partners }: { partners: Partner[] }) {
   return (

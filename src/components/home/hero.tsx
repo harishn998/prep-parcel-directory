@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
-import { popularSearchChips } from "@/lib/sample-data";
+import { popularSearchChips } from "@/lib/static-data";
 import { HeroBg } from "./hero-bg";
 
 const EASE = [0.22, 1, 0.36, 1] as const;

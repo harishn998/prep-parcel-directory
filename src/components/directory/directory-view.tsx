@@ -1,11 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  partners as allPartners,
-  type Partner,
-  type SortValue,
-} from "@/lib/sample-data";
+import type { Partner } from "@/lib/data/types";
+import type { SortValue } from "@/lib/static-data";
 import {
   applyFilters,
   applySort,
@@ -25,20 +22,20 @@ import { LoadMoreButton } from "./load-more-button";
 const PAGE_SIZE = 6;
 
 export function DirectoryView({
-  partners = allPartners,
+  partners,
   initialFilters,
   lockedServices,
   lockedLocations,
   hidePageHeader = false,
   hideQuickFilters = false,
 }: {
-  partners?: Partner[];
+  partners: Partner[];
   initialFilters?: Filters;
   lockedServices?: Set<string>;
   lockedLocations?: Set<string>;
   hidePageHeader?: boolean;
   hideQuickFilters?: boolean;
-} = {}) {
+}) {
   const [filters, setFilters] = useState<Filters>(
     () => initialFilters ?? emptyFilters()
   );

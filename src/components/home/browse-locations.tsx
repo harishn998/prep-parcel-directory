@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { locations } from "@/lib/sample-data";
+import { locations } from "@/lib/static-data";
 
 export function BrowseLocations() {
   return (

@@ -17,7 +17,7 @@ import {
   serviceFilters,
   integrationFilters,
   certificationFilters,
-} from "@/lib/sample-data";
+} from "@/lib/static-data";
 import {
   type Filters,
   emptyFilters,

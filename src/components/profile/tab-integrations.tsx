@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Plug } from "lucide-react";
-import type { Partner } from "@/lib/sample-data";
+import type { Partner } from "@/lib/data/types";
 
 export function TabIntegrations({ partner }: { partner: Partner }) {
   return (

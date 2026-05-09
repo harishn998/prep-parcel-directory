@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronDown, Lock } from "lucide-react";
-import { usStates } from "@/lib/sample-data";
+import { usStates } from "@/lib/static-data";
 
 const countries = [
   { name: "United States", code: "US", regions: usStates },

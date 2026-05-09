@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Check, GitCompare } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { Partner } from "@/lib/sample-data";
+import type { Partner } from "@/lib/data/types";
 
 export function CompareSection({
   current,
