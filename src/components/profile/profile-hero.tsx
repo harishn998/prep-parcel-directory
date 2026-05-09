@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   MapPin,
   Calendar,
@@ -16,6 +17,12 @@ import {
   coverGradientCss,
   type Partner,
 } from "@/lib/sample-data";
+
+const COUNTRY_SLUG_MAP = {
+  USA: "usa",
+  Canada: "canada",
+  UK: "uk",
+} as const;
 
 export function ProfileHero({ partner }: { partner: Partner }) {
   return (
@@ -79,7 +86,21 @@ export function ProfileHero({ partner }: { partner: Partner }) {
               <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-text-2">
                 <span className="flex items-center gap-1.5">
                   <MapPin className="h-3.5 w-3.5 text-text-3" strokeWidth={2} />
-                  {partner.location}
+                  {partner.city ? (
+                    <Link
+                      href={`/location/${COUNTRY_SLUG_MAP[partner.country]}/${partner.state}/${partner.city}`}
+                      className="transition-colors duration-200 hover:text-blue hover:underline underline-offset-4"
+                    >
+                      {partner.location}
+                    </Link>
+                  ) : (
+                    <Link
+                      href={`/location/${COUNTRY_SLUG_MAP[partner.country]}/${partner.state}`}
+                      className="transition-colors duration-200 hover:text-blue hover:underline underline-offset-4"
+                    >
+                      {partner.location}
+                    </Link>
+                  )}
                 </span>
                 <span className="flex items-center gap-1.5">
                   <Calendar

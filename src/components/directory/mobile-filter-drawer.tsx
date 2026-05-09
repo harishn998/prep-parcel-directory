@@ -17,11 +17,15 @@ export function MobileFilterDrawer({
   onChange,
   onClearAll,
   activeCount,
+  lockedServices,
+  lockedLocations,
 }: {
   filters: Filters;
   onChange: (filters: Filters) => void;
   onClearAll: () => void;
   activeCount: number;
+  lockedServices?: Set<string>;
+  lockedLocations?: Set<string>;
 }) {
   return (
     <Sheet>
@@ -57,6 +61,8 @@ export function MobileFilterDrawer({
           filters={filters}
           onChange={onChange}
           onClearAll={onClearAll}
+          lockedServices={lockedServices}
+          lockedLocations={lockedLocations}
         />
       </SheetContent>
     </Sheet>

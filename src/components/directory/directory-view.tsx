@@ -6,127 +6,49 @@ import {
   type Partner,
   type SortValue,
 } from "@/lib/sample-data";
+import {
+  applyFilters,
+  applySort,
+  emptyFilters,
+  hasAnyFilter,
+  type Filters,
+} from "@/lib/filter-logic";
 import { useDebouncedLoading } from "@/hooks/use-debounced-loading";
 import { DirectoryPageHeader } from "./page-header";
 import { QuickFilterStrip } from "./quick-filter-strip";
 import { ActiveFilterChips, type ActiveChip } from "./active-filter-chips";
-import {
-  FilterSidebar,
-  emptyFilters,
-  hasAnyFilter,
-  type Filters,
-} from "./filter-sidebar";
+import { FilterSidebar } from "./filter-sidebar";
 import { MobileFilterDrawer } from "./mobile-filter-drawer";
 import { PartnerGrid } from "./partner-grid";
 import { LoadMoreButton } from "./load-more-button";
 
 const PAGE_SIZE = 6;
 
-const minRatingMap: Record<string, number> = {
-  "4.5": 4.5,
-  "4.0": 4.0,
-  "3.5": 3.5,
-  any: 0,
-};
-
-const minVolumeMap: Record<string, number> = {
-  "1000": 1000,
-  "500": 500,
-  "100": 100,
-  any: 0,
-};
-
-const partnerVolumeMap: Record<string, number> = {
-  none: 0,
-  "100": 100,
-  "500": 500,
-  "1000": 1000,
-};
-
-function applyFilters(items: Partner[], f: Filters): Partner[] {
-  const search = f.search.trim().toLowerCase();
-  const minRating = minRatingMap[f.rating];
-  const minVolume = minVolumeMap[f.volume];
-  const serviceFilter = new Set([
-    ...Array.from(f.services),
-    ...Array.from(f.quickFilters),
-  ]);
-  return items.filter((p) => {
-    if (search && !p.name.toLowerCase().includes(search)) return false;
-    if (p.rating < minRating) return false;
-
-    if (serviceFilter.size > 0) {
-      const partnerServices = new Set(p.services);
-      // Match if partner offers ANY of the selected services
-      let hit = false;
-      for (const s of serviceFilter) {
-        if (partnerServices.has(s)) {
-          hit = true;
-          break;
-        }
-      }
-      if (!hit) return false;
-    }
-
-    if (f.locations.size > 0) {
-      const matchesCountry =
-        (f.locations.has("United States") && p.countryCode === "US") ||
-        (f.locations.has("Canada") && p.countryCode === "CA") ||
-        (f.locations.has("United Kingdom") && p.countryCode === "GB");
-      const matchesRegion = f.locations.has(p.region);
-      if (!matchesCountry && !matchesRegion) return false;
-    }
-
-    if (f.integrations.size > 0) {
-      const partnerIntegrations = new Set(p.integrations);
-      for (const i of f.integrations) {
-        if (!partnerIntegrations.has(i)) return false;
-      }
-    }
-
-    if (f.certifications.size > 0) {
-      const partnerCerts = new Set(p.certifications);
-      for (const c of f.certifications) {
-        if (!partnerCerts.has(c)) return false;
-      }
-    }
-
-    if (minVolume > 0 && partnerVolumeMap[p.minimumOrderVolume] < minVolume) {
-      return false;
-    }
-
-    return true;
-  });
-}
-
-function applySort(items: Partner[], sort: SortValue): Partner[] {
-  const list = [...items];
-  switch (sort) {
-    case "rating":
-      list.sort((a, b) => b.rating - a.rating);
-      break;
-    case "reviews":
-      list.sort((a, b) => b.reviewCount - a.reviewCount);
-      break;
-    case "newest":
-      list.sort((a, b) => b.yearFounded - a.yearFounded);
-      break;
-    default:
-      // relevance: keep original order
-      break;
-  }
-  return list;
-}
-
-export function DirectoryView() {
-  const [filters, setFilters] = useState<Filters>(() => emptyFilters());
+export function DirectoryView({
+  partners = allPartners,
+  initialFilters,
+  lockedServices,
+  lockedLocations,
+  hidePageHeader = false,
+  hideQuickFilters = false,
+}: {
+  partners?: Partner[];
+  initialFilters?: Filters;
+  lockedServices?: Set<string>;
+  lockedLocations?: Set<string>;
+  hidePageHeader?: boolean;
+  hideQuickFilters?: boolean;
+} = {}) {
+  const [filters, setFilters] = useState<Filters>(
+    () => initialFilters ?? emptyFilters()
+  );
   const [sort, setSort] = useState<SortValue>("relevance");
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [filterPulse, setFilterPulse] = useState(0);
   const [filtering, setFiltering] = useState(false);
   const showSkeletons = useDebouncedLoading(filtering, 200);
 
-  // Reset paging when filters change; emulate brief async to demonstrate skeleton.
+  // Reset paging when filters/sort change; emulate brief async to flash skeletons.
   useEffect(() => {
     setFiltering(true);
     setVisible(PAGE_SIZE);
@@ -135,10 +57,28 @@ export function DirectoryView() {
   }, [filterPulse, sort]);
 
   const onChangeFilters = (next: Filters) => {
+    // Make sure locked filters can't be removed via state changes elsewhere
+    if (lockedServices) {
+      const merged = new Set(next.services);
+      for (const v of lockedServices) merged.add(v);
+      next = { ...next, services: merged };
+    }
+    if (lockedLocations) {
+      const merged = new Set(next.locations);
+      for (const v of lockedLocations) merged.add(v);
+      next = { ...next, locations: merged };
+    }
     setFilters(next);
     setFilterPulse((n) => n + 1);
   };
-  const onClearAll = () => onChangeFilters(emptyFilters());
+
+  const onClearAll = () => {
+    // Preserve locks when clearing
+    const next = emptyFilters();
+    if (lockedServices) for (const v of lockedServices) next.services.add(v);
+    if (lockedLocations) for (const v of lockedLocations) next.locations.add(v);
+    onChangeFilters(next);
+  };
 
   const onToggleQuickFilter = (chip: string) => {
     const next = new Set(filters.quickFilters);
@@ -148,14 +88,15 @@ export function DirectoryView() {
   };
 
   const filtered = useMemo(
-    () => applySort(applyFilters(allPartners, filters), sort),
-    [filters, sort]
+    () => applySort(applyFilters(partners, filters), sort),
+    [partners, filters, sort]
   );
 
   const visiblePartners = filtered.slice(0, visible);
   const remaining = Math.max(filtered.length - visible, 0);
 
-  // Build chip list for the active-filter strip
+  // Build chip list for the active-filter strip. Locked items render with no
+  // remove button and are styled differently.
   const chips: ActiveChip[] = useMemo(() => {
     const out: ActiveChip[] = [];
     if (filters.search.trim()) {
@@ -167,21 +108,25 @@ export function DirectoryView() {
     }
     const setChips = (
       key: "services" | "locations" | "integrations" | "certifications",
+      lockedSet?: Set<string>,
       prefix?: string
     ) =>
-      Array.from(filters[key]).forEach((value) =>
+      Array.from(filters[key]).forEach((value) => {
+        const isLocked = lockedSet?.has(value) ?? false;
         out.push({
           id: `${key}-${value}`,
           label: prefix ? `${prefix}: ${value}` : value,
+          locked: isLocked,
           onRemove: () => {
+            if (isLocked) return;
             const next = new Set(filters[key]);
             next.delete(value);
             onChangeFilters({ ...filters, [key]: next });
           },
-        })
-      );
-    setChips("services");
-    setChips("locations", "Location");
+        });
+      });
+    setChips("services", lockedServices, "Service");
+    setChips("locations", lockedLocations, "Location");
     setChips("integrations");
     setChips("certifications");
     Array.from(filters.quickFilters).forEach((value) =>
@@ -216,28 +161,42 @@ export function DirectoryView() {
     }
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]);
+  }, [filters, lockedServices, lockedLocations]);
+
+  // Whether "Clear all" should be offered (only when there are removable filters)
+  const offerClearAll = (() => {
+    const removable = chips.filter((c) => !c.locked);
+    return removable.length > 0 && hasAnyFilter(filters);
+  })();
 
   return (
     <>
-      <DirectoryPageHeader
-        total={allPartners.length}
-        visible={visiblePartners.length}
-        sort={sort}
-        onSortChange={setSort}
-      />
+      {!hidePageHeader && (
+        <DirectoryPageHeader
+          total={partners.length}
+          visible={visiblePartners.length}
+          sort={sort}
+          onSortChange={setSort}
+        />
+      )}
 
       <div className="bg-background pb-24">
         <div className="mx-auto max-w-[1280px] px-6 md:px-8">
-          {/* Quick filters */}
-          <div className="pt-8">
-            <QuickFilterStrip
-              active={filters.quickFilters}
-              onToggle={onToggleQuickFilter}
-            />
-          </div>
+          {!hideQuickFilters && (
+            <div className="pt-8">
+              <QuickFilterStrip
+                active={filters.quickFilters}
+                onToggle={onToggleQuickFilter}
+              />
+            </div>
+          )}
 
-          <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-12">
+          <div
+            className={[
+              "grid grid-cols-1 gap-10 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-12",
+              hideQuickFilters ? "mt-8" : "mt-8",
+            ].join(" ")}
+          >
             {/* Sidebar (desktop) */}
             <div className="hidden lg:block">
               <div className="sticky top-24">
@@ -245,18 +204,22 @@ export function DirectoryView() {
                   filters={filters}
                   onChange={onChangeFilters}
                   onClearAll={onClearAll}
+                  lockedServices={lockedServices}
+                  lockedLocations={lockedLocations}
                 />
               </div>
             </div>
 
             <div className="flex flex-col">
-              {/* Mobile controls + active chips */}
+              {/* Mobile controls */}
               <div className="flex flex-col gap-4 lg:hidden">
                 <MobileFilterDrawer
                   filters={filters}
                   onChange={onChangeFilters}
                   onClearAll={onClearAll}
                   activeCount={chips.length}
+                  lockedServices={lockedServices}
+                  lockedLocations={lockedLocations}
                 />
               </div>
 
@@ -264,8 +227,24 @@ export function DirectoryView() {
                 <div className="mb-6 mt-6 lg:mt-0">
                   <ActiveFilterChips
                     chips={chips}
-                    onClearAll={hasAnyFilter(filters) ? onClearAll : undefined}
+                    onClearAll={offerClearAll ? onClearAll : undefined}
                   />
+                </div>
+              )}
+
+              {hidePageHeader && (
+                <div className="mb-4 flex items-center justify-between text-[13px] text-text-2">
+                  <span>
+                    Showing{" "}
+                    <span data-numeric className="font-medium text-text">
+                      {visiblePartners.length}
+                    </span>{" "}
+                    of{" "}
+                    <span data-numeric className="font-medium text-text">
+                      {filtered.length}
+                    </span>{" "}
+                    partners
+                  </span>
                 </div>
               )}
 

@@ -1,9 +1,14 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { X } from "lucide-react";
+import { X, Lock } from "lucide-react";
 
-export type ActiveChip = { id: string; label: string; onRemove: () => void };
+export type ActiveChip = {
+  id: string;
+  label: string;
+  onRemove: () => void;
+  locked?: boolean;
+};
 
 export function ActiveFilterChips({
   chips,
@@ -13,32 +18,48 @@ export function ActiveFilterChips({
   onClearAll?: () => void;
 }) {
   if (chips.length === 0) return null;
+  const removableCount = chips.filter((c) => !c.locked).length;
   return (
     <div className="flex flex-wrap items-center gap-2">
       <AnimatePresence initial={false}>
-        {chips.map((chip) => (
-          <motion.span
-            key={chip.id}
-            layout
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.96 }}
-            transition={{ duration: 0.18, ease: [0.22, 0.61, 0.36, 1] }}
-            className="inline-flex items-center gap-1.5 rounded-full border border-blue/30 bg-blue/10 py-1 pl-3 pr-1 text-[13px] font-medium text-navy"
-          >
-            {chip.label}
-            <button
-              type="button"
-              onClick={chip.onRemove}
-              aria-label={`Remove ${chip.label}`}
-              className="flex h-5 w-5 items-center justify-center rounded-full text-navy/70 transition-colors duration-200 hover:bg-blue/20 hover:text-navy"
+        {chips.map((chip) =>
+          chip.locked ? (
+            <motion.span
+              key={chip.id}
+              layout
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.18, ease: [0.22, 0.61, 0.36, 1] }}
+              className="inline-flex items-center gap-1.5 rounded-full border border-navy/15 bg-secondary px-3 py-1 text-[13px] font-medium text-navy"
             >
-              <X className="h-3 w-3" strokeWidth={2.5} />
-            </button>
-          </motion.span>
-        ))}
+              <Lock className="h-3 w-3 text-text-3" strokeWidth={2} />
+              {chip.label}
+            </motion.span>
+          ) : (
+            <motion.span
+              key={chip.id}
+              layout
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.18, ease: [0.22, 0.61, 0.36, 1] }}
+              className="inline-flex items-center gap-1.5 rounded-full border border-blue/30 bg-blue/10 py-1 pl-3 pr-1 text-[13px] font-medium text-navy"
+            >
+              {chip.label}
+              <button
+                type="button"
+                onClick={chip.onRemove}
+                aria-label={`Remove ${chip.label}`}
+                className="flex h-5 w-5 items-center justify-center rounded-full text-navy/70 transition-colors duration-200 hover:bg-blue/20 hover:text-navy"
+              >
+                <X className="h-3 w-3" strokeWidth={2.5} />
+              </button>
+            </motion.span>
+          )
+        )}
       </AnimatePresence>
-      {onClearAll && chips.length > 1 && (
+      {onClearAll && removableCount > 1 && (
         <motion.button
           layout
           type="button"

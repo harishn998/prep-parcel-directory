@@ -24,6 +24,8 @@ export type DetailedService = {
   included: boolean;
 };
 
+export type CountryName = "USA" | "Canada" | "UK";
+
 export type Partner = {
   // Phase 1A core
   name: string;
@@ -59,6 +61,15 @@ export type Partner = {
   warehouses: WarehouseLocation[];
   reviews: Review[];
   ratingBreakdown: { 5: number; 4: number; 3: number; 2: number; 1: number };
+
+  // Phase 1C SEO architecture fields
+  country: CountryName;
+  state: string; // taxonomy state slug e.g. 'california'
+  stateFullName: string; // 'California'
+  city: string | null; // taxonomy city slug, or null when primary city is off-taxonomy
+  cityFullName: string | null;
+  servedStates: string[]; // includes primary state; states this partner can serve
+  serviceCategories: string[]; // taxonomy category slugs the partner offers
 };
 
 export type Category = {
@@ -296,6 +307,14 @@ export const partners: Partner[] = [
       },
     ],
     ratingBreakdown: { 5: 195, 4: 38, 3: 9, 2: 3, 1: 2 },
+
+    country: "Canada",
+    state: "ontario",
+    stateFullName: "Ontario",
+    city: "toronto",
+    cityFullName: "Toronto",
+    servedStates: ["ontario"],
+    serviceCategories: ["fba-prep-services", "dtc-fulfillment", "returns-management", "kitting-and-assembly"],
   },
   {
     name: "Meridian Logistics",
@@ -473,11 +492,19 @@ export const partners: Partner[] = [
       },
     ],
     ratingBreakdown: { 5: 142, 4: 32, 3: 9, 2: 4, 1: 2 },
+
+    country: "USA",
+    state: "texas",
+    stateFullName: "Texas",
+    city: "dallas",
+    cityFullName: "Dallas",
+    servedStates: ["texas", "california", "illinois", "georgia", "florida", "pennsylvania", "new-york", "ohio"],
+    serviceCategories: ["cold-storage", "b2b-freight", "kitting-and-assembly", "dtc-fulfillment", "returns-management"],
   },
   {
     name: "Harbor Fulfillment Group",
     slug: "harbor-fulfillment-group",
-    location: "Long Beach, CA",
+    location: "Los Angeles, CA",
     rating: 4.7,
     reviewCount: 312,
     services: ["FBA Prep", "Container Drayage", "DTC Fulfillment"],
@@ -543,7 +570,7 @@ export const partners: Partner[] = [
     ],
     warehouses: [
       {
-        city: "Long Beach, CA",
+        city: "Los Angeles, CA",
         address: "2300 Pier S Ave, Long Beach, CA 90802",
         sqft: 320000,
         hours: "Mon–Sat 6am–12am PT",
@@ -633,21 +660,29 @@ export const partners: Partner[] = [
       },
     ],
     ratingBreakdown: { 5: 218, 4: 64, 3: 18, 2: 8, 1: 4 },
+
+    country: "USA",
+    state: "california",
+    stateFullName: "California",
+    city: "los-angeles",
+    cityFullName: "Los Angeles",
+    servedStates: ["california"],
+    serviceCategories: ["fba-prep-services", "dtc-fulfillment", "cross-border-fulfillment"],
   },
   {
     name: "Ironclad 3PL",
     slug: "ironclad-3pl",
-    location: "Columbus, OH",
+    location: "Philadelphia, PA",
     rating: 4.9,
     reviewCount: 156,
     services: ["DTC Fulfillment", "Returns", "Subscription Boxes"],
     verified: true,
     description:
-      "Midwest fulfillment hub built for subscription brands and high-velocity DTC. Two-day ground reaches 92% of US households.",
+      "East Coast fulfillment hub built for subscription brands and high-velocity DTC. Two-day ground reaches 95% of US households from Philadelphia.",
     logoPlaceholder: "IC",
 
     tagline:
-      "Midwest hub built for subscription brands and high-velocity DTC.",
+      "East Coast hub built for subscription brands and high-velocity DTC.",
     yearFounded: 2017,
     employeeCount: "80–120",
     coverGradient: "navy-blue",
@@ -664,14 +699,14 @@ export const partners: Partner[] = [
     yearsInBusiness: 8,
     activeBrandsServed: 96,
     contact: {
-      phone: "+1 (614) 555-0167",
+      phone: "+1 (215) 555-0167",
       email: "team@ironclad3pl.example",
       website: "https://ironclad3pl.example",
     },
     about: [
-      "Ironclad started in a 12,000 sqft Columbus warehouse in 2017 with one anchor client — a subscription coffee brand that needed 4,000 boxes shipped on the first Tuesday of every month. The whole company was built around the constraint of nailing that high-stakes monthly cadence.",
+      "Ironclad started in a 12,000 sqft warehouse in northeast Philadelphia in 2017 with one anchor client — a subscription coffee brand that needed 4,000 boxes shipped on the first Tuesday of every month. The whole company was built around the constraint of nailing that high-stakes monthly cadence.",
       "Eight years later they're at 110,000 sqft and still subscription-first, with a particular obsession for DTC brands where the unboxing is the product. Custom dunnage, tissue paper, hand-tied ribbon — Ironclad will run all of it at 4,000 units/day without a quality regression.",
-      "Their location in Columbus is intentional: two-day ground from Ironclad reaches 92% of US households, and one-day reaches 67%. That means most subscription brands can hit a Friday-ship-Tuesday-arrive pattern that customer support never has to apologize for.",
+      "Their Philadelphia location is intentional: two-day ground reaches 95% of US households up and down the I-95 corridor, and one-day covers most of the Northeast and Mid-Atlantic. Most subscription brands hit a Friday-ship-Tuesday-arrive pattern that customer support never has to apologize for.",
     ],
     detailedServices: [
       {
@@ -706,8 +741,8 @@ export const partners: Partner[] = [
     ],
     warehouses: [
       {
-        city: "Columbus, OH",
-        address: "4800 Roberts Rd, Columbus, OH 43228",
+        city: "Philadelphia, PA",
+        address: "5800 Tulip St, Philadelphia, PA 19135",
         sqft: 110000,
         hours: "Mon–Fri 7am–9pm, Sat 9am–4pm ET",
         services: ["Subscription Boxes", "DTC Fulfillment", "Returns"],
@@ -796,11 +831,19 @@ export const partners: Partner[] = [
       },
     ],
     ratingBreakdown: { 5: 132, 4: 18, 3: 4, 2: 1, 1: 1 },
+
+    country: "USA",
+    state: "pennsylvania",
+    stateFullName: "Pennsylvania",
+    city: "philadelphia",
+    cityFullName: "Philadelphia",
+    servedStates: ["pennsylvania", "ohio", "new-york", "illinois"],
+    serviceCategories: ["dtc-fulfillment", "returns-management", "subscription-box-fulfillment", "kitting-and-assembly"],
   },
   {
     name: "Saltwater Supply Co.",
     slug: "saltwater-supply-co",
-    location: "Brooklyn, NY",
+    location: "New York City, NY",
     rating: 4.6,
     reviewCount: 98,
     services: ["DTC Fulfillment", "Kitting", "Apparel"],
@@ -952,6 +995,14 @@ export const partners: Partner[] = [
       },
     ],
     ratingBreakdown: { 5: 64, 4: 24, 3: 6, 2: 2, 1: 2 },
+
+    country: "USA",
+    state: "new-york",
+    stateFullName: "New York",
+    city: "new-york-city",
+    cityFullName: "New York City",
+    servedStates: ["new-york"],
+    serviceCategories: ["dtc-fulfillment", "kitting-and-assembly", "subscription-box-fulfillment"],
   },
   {
     name: "Beacon Warehousing",
@@ -1115,21 +1166,29 @@ export const partners: Partner[] = [
       },
     ],
     ratingBreakdown: { 5: 128, 4: 32, 3: 9, 2: 3, 1: 2 },
+
+    country: "UK",
+    state: "england",
+    stateFullName: "England",
+    city: "manchester",
+    cityFullName: "Manchester",
+    servedStates: ["england", "scotland"],
+    serviceCategories: ["dtc-fulfillment", "fba-prep-services", "cross-border-fulfillment", "returns-management"],
   },
   // ----- New for Phase 1B (6 more, totaling 12) -----
   {
     name: "Cascade Logistics",
     slug: "cascade-logistics",
-    location: "Seattle, WA",
+    location: "San Francisco, CA",
     rating: 4.7,
     reviewCount: 142,
     services: ["DTC Fulfillment", "Cross-Border", "Returns"],
     verified: true,
     description:
-      "Pacific Northwest 3PL with strong cross-border Canada flows. Two-day ground reaches all of WA, OR, and BC.",
+      "Northern California 3PL with strong cross-border Canada flows and West Coast 2-day reach into the PNW and BC.",
     logoPlaceholder: "CL",
 
-    tagline: "PNW fulfillment with strong cross-border Canada flows.",
+    tagline: "West Coast fulfillment with strong cross-border Canada flows.",
     yearFounded: 2015,
     employeeCount: "100–140",
     coverGradient: "blue-indigo",
@@ -1146,14 +1205,14 @@ export const partners: Partner[] = [
     yearsInBusiness: 10,
     activeBrandsServed: 88,
     contact: {
-      phone: "+1 (206) 555-0188",
+      phone: "+1 (415) 555-0188",
       email: "team@cascadelogistics.example",
       website: "https://cascadelogistics.example",
     },
     about: [
-      "Cascade Logistics opened in Kent, WA in 2015 with a thesis: PNW outdoor brands shouldn't have to ship from Ohio. Two-day ground from Cascade covers all of Washington, Oregon, and most of British Columbia and Idaho — and that's most of the customer base for the brands they serve.",
-      "Cross-border flows into Canada are a core capability. Cascade is C-TPAT certified and offers consolidated DDP shipping into Canada, which removes the customs friction Canadian customers usually hit on US DTC orders.",
-      "Cascade's 140-person team specializes in outdoor, technical apparel, and PNW-rooted lifestyle brands. They are not the right fit if your customer base is primarily East Coast.",
+      "Cascade Logistics opened in San Francisco in 2015 with a thesis: West Coast outdoor and lifestyle brands shouldn't have to ship from Ohio. Two-day ground from Cascade covers all of California, most of Oregon, Washington, Nevada, and southern BC — most of the customer base for the brands they serve.",
+      "Cross-border flows into Canada remain a core capability — the team built the original PNW Canada infrastructure before relocating south. Cascade is C-TPAT certified and offers consolidated DDP shipping into Canada via either Pacific Highway or Detroit, which removes the customs friction Canadian customers usually hit on US DTC orders.",
+      "Cascade's 140-person team specializes in outdoor, technical apparel, and West Coast lifestyle brands. They are not the right fit if your customer base is primarily East Coast.",
     ],
     detailedServices: [
       {
@@ -1180,8 +1239,8 @@ export const partners: Partner[] = [
     ],
     warehouses: [
       {
-        city: "Kent, WA",
-        address: "21800 88th Ave S, Kent, WA 98031",
+        city: "South San Francisco, CA",
+        address: "350 Forbes Blvd, South San Francisco, CA 94080",
         sqft: 95000,
         hours: "Mon–Fri 6am–9pm PT",
         services: ["DTC Fulfillment", "Cross-Border", "Returns"],
@@ -1270,6 +1329,14 @@ export const partners: Partner[] = [
       },
     ],
     ratingBreakdown: { 5: 96, 4: 32, 3: 8, 2: 4, 1: 2 },
+
+    country: "USA",
+    state: "california",
+    stateFullName: "California",
+    city: null,
+    cityFullName: null,
+    servedStates: ["california"],
+    serviceCategories: ["dtc-fulfillment", "cross-border-fulfillment", "returns-management", "fba-prep-services"],
   },
   {
     name: "Stonebridge 3PL",
@@ -1439,6 +1506,14 @@ export const partners: Partner[] = [
       },
     ],
     ratingBreakdown: { 5: 128, 4: 56, 3: 14, 2: 6, 1: 3 },
+
+    country: "USA",
+    state: "georgia",
+    stateFullName: "Georgia",
+    city: "atlanta",
+    cityFullName: "Atlanta",
+    servedStates: ["georgia", "florida", "pennsylvania", "ohio", "illinois", "new-york"],
+    serviceCategories: ["dtc-fulfillment", "b2b-freight", "kitting-and-assembly", "returns-management"],
   },
   {
     name: "Pinewood Distribution",
@@ -1608,6 +1683,14 @@ export const partners: Partner[] = [
       },
     ],
     ratingBreakdown: { 5: 78, 4: 28, 3: 8, 2: 3, 1: 2 },
+
+    country: "Canada",
+    state: "british-columbia",
+    stateFullName: "British Columbia",
+    city: "vancouver",
+    cityFullName: "Vancouver",
+    servedStates: ["british-columbia", "alberta"],
+    serviceCategories: ["dtc-fulfillment", "fba-prep-services", "returns-management", "cross-border-fulfillment"],
   },
   {
     name: "Aldermere Fulfillment",
@@ -1780,25 +1863,33 @@ export const partners: Partner[] = [
       },
     ],
     ratingBreakdown: { 5: 142, 4: 84, 3: 22, 2: 10, 1: 5 },
+
+    country: "USA",
+    state: "illinois",
+    stateFullName: "Illinois",
+    city: "chicago",
+    cityFullName: "Chicago",
+    servedStates: ["illinois", "ohio", "pennsylvania", "new-york", "georgia", "texas", "california", "florida"],
+    serviceCategories: ["dtc-fulfillment", "fba-prep-services", "b2b-freight", "returns-management", "kitting-and-assembly"],
   },
   {
     name: "Crestline Supply",
     slug: "crestline-supply",
-    location: "Birmingham, UK",
+    location: "London, UK",
     rating: 4.7,
     reviewCount: 88,
     services: ["DTC Fulfillment", "FBA Prep", "Returns"],
     verified: true,
     description:
-      "UK Midlands 3PL focused on DTC apparel and home goods. Strong same-day inbound receiving for fast-moving brands.",
+      "Greater London 3PL focused on DTC apparel and home goods. Strong same-day inbound receiving for fast-moving brands shipping nationally.",
     logoPlaceholder: "CS",
 
-    tagline: "UK Midlands DTC focused on apparel and home goods.",
+    tagline: "Greater London DTC focused on apparel and home goods.",
     yearFounded: 2018,
     employeeCount: "60–90",
     coverGradient: "blue-indigo",
     countryCode: "GB",
-    region: "West Midlands",
+    region: "Greater London",
     specialties: ["UK DTC", "Apparel", "Home Goods"],
     integrations: ["Shopify", "WooCommerce", "Amazon", "Magento"],
     certifications: ["ISO 9001"],
@@ -1810,12 +1901,12 @@ export const partners: Partner[] = [
     yearsInBusiness: 7,
     activeBrandsServed: 64,
     contact: {
-      phone: "+44 121 555 0142",
+      phone: "+44 20 7555 0142",
       email: "hello@crestlinesupply.example",
       website: "https://crestlinesupply.example",
     },
     about: [
-      "Crestline Supply opened in Birmingham in 2018 to serve UK DTC brands frustrated with the larger 3PLs' minimum-volume requirements. Their pitch is simple: same-day inbound receiving, same-day shipping cutoff at 4pm GMT, no monthly minimums, and a single point of contact who knows your brand.",
+      "Crestline Supply opened in a 50,000 sqft facility in Park Royal, west London in 2018 to serve UK DTC brands frustrated with the larger 3PLs' minimum-volume requirements. Their pitch is simple: same-day inbound receiving, same-day shipping cutoff at 4pm GMT, no monthly minimums, and a single point of contact who knows your brand.",
       "Their 50,000 sqft facility serves 64 active brands, mostly apparel and home goods. Most onboard in under 2 weeks, and most stay for the long haul — Crestline's churn is roughly 6% annually.",
       "Crestline is the right partner for emerging UK DTC brands shipping 500–10,000 orders per month. They are explicitly not the right partner for high-volume operations or anyone needing multi-warehouse distribution.",
     ],
@@ -1844,8 +1935,8 @@ export const partners: Partner[] = [
     ],
     warehouses: [
       {
-        city: "Birmingham, UK",
-        address: "Aston Cross Business Park, Birmingham B6 5RS",
+        city: "London, UK",
+        address: "Park Royal Business Park, London NW10 7DR",
         sqft: 50000,
         hours: "Mon–Fri 7am–8pm GMT",
         services: ["DTC Fulfillment", "FBA Prep", "Returns"],
@@ -1934,44 +2025,52 @@ export const partners: Partner[] = [
       },
     ],
     ratingBreakdown: { 5: 56, 4: 24, 3: 5, 2: 2, 1: 1 },
+
+    country: "UK",
+    state: "england",
+    stateFullName: "England",
+    city: "london",
+    cityFullName: "London",
+    servedStates: ["england", "scotland"],
+    serviceCategories: ["dtc-fulfillment", "fba-prep-services", "returns-management"],
   },
   {
     name: "Fairwind Logistics",
     slug: "fairwind-logistics",
-    location: "Phoenix, AZ",
+    location: "Miami, FL",
     rating: 4.5,
     reviewCount: 134,
     services: ["DTC Fulfillment", "FBA Prep", "Cross-Border"],
     verified: true,
     description:
-      "Southwest 3PL with cross-border Mexico flows and competitive 2-day West Coast coverage.",
+      "Southeast 3PL with cross-border Latin America and Caribbean flows and competitive 2-day Eastern US coverage.",
     logoPlaceholder: "FW",
 
-    tagline: "Phoenix 3PL with cross-border Mexico flows and West Coast 2-day.",
+    tagline: "Miami 3PL with cross-border Latin America flows and Eastern US 2-day reach.",
     yearFounded: 2014,
     employeeCount: "120–160",
     coverGradient: "navy-amber",
     countryCode: "US",
-    region: "Arizona",
-    specialties: ["Cross-Border Mexico", "Southwest DTC", "Outdoor"],
+    region: "Florida",
+    specialties: ["Cross-Border Latin America", "Southeast DTC", "Caribbean Distribution"],
     integrations: ["Shopify", "Amazon", "BigCommerce", "ShipStation"],
     certifications: ["ISO 9001", "C-TPAT"],
     minimumOrderVolume: "100",
-    pricingModel: "Per-pick + storage, custom for cross-border Mexico",
+    pricingModel: "Per-pick + storage, custom for cross-border Latin America",
     responseTime: "Under 3 hours",
     fulfillmentSpeed: "Same-day cutoff 3pm MT",
     orderAccuracy: 99.4,
     yearsInBusiness: 11,
     activeBrandsServed: 132,
     contact: {
-      phone: "+1 (602) 555-0188",
+      phone: "+1 (305) 555-0188",
       email: "hello@fairwindlogistics.example",
       website: "https://fairwindlogistics.example",
     },
     about: [
-      "Fairwind Logistics opened in Phoenix in 2014 with a thesis: cross-border Mexico is underserved by US 3PLs, and West Coast brands often pay too much for inland warehousing in California. Phoenix offers cheaper real estate, comparable West Coast 2-day reach, and direct overland access to Nogales for Mexico flows.",
-      "Their 130,000 sqft facility serves 132 active brands. Roughly 30% of their volume is cross-border Mexico, which they handle via a dedicated bilingual team and an established broker relationship at the Nogales border crossing.",
-      "Fairwind is a good fit for brands with Mexico aspirations or West Coast customer concentrations. They are not the best choice if your customer base is East Coast — that adds a transit day vs. Midwest 3PLs.",
+      "Fairwind Logistics opened in Miami in 2014 with a thesis: cross-border Latin America and Caribbean is underserved by US 3PLs, and Southeast brands often pay too much for inland warehousing in Atlanta. Miami offers proximity to Latin American markets, port and airport access for Caribbean cargo, and competitive 2-day reach across the Eastern US.",
+      "Their 130,000 sqft facility serves 132 active brands. Roughly 30% of their volume is cross-border Latin America and Caribbean, which they handle via a dedicated bilingual team and an established broker relationship at PortMiami and MIA cargo terminals.",
+      "Fairwind is a good fit for brands with Latin America or Caribbean aspirations and Eastern US customer concentrations. They are not the best choice if your customer base is West Coast — that adds a transit day vs. California or Midwest 3PLs.",
     ],
     detailedServices: [
       {
@@ -1981,9 +2080,9 @@ export const partners: Partner[] = [
         included: true,
       },
       {
-        name: "Cross-Border Mexico",
+        name: "Cross-Border Latin America",
         description:
-          "Consolidated DDP shipments into Mexico via Nogales, customs cleared.",
+          "Consolidated DDP shipments into Mexico, the Caribbean, and Central / South America via PortMiami and MIA airfreight, customs cleared.",
         included: true,
       },
       {
@@ -1994,7 +2093,7 @@ export const partners: Partner[] = [
       {
         name: "Spanish-Language Support",
         description:
-          "Bilingual customer service handoffs for Mexico-bound orders.",
+          "Bilingual customer service handoffs for Latin America- and Caribbean-bound orders.",
         included: true,
       },
       {
@@ -2005,31 +2104,31 @@ export const partners: Partner[] = [
     ],
     warehouses: [
       {
-        city: "Phoenix, AZ",
-        address: "5500 W Buckeye Rd, Phoenix, AZ 85043",
+        city: "Miami, FL",
+        address: "10500 NW 25th St, Doral, FL 33172",
         sqft: 130000,
-        hours: "Mon–Sat 5am–10pm MT",
-        services: ["DTC Fulfillment", "FBA Prep", "Cross-Border Mexico"],
+        hours: "Mon–Sat 5am–10pm ET",
+        services: ["DTC Fulfillment", "FBA Prep", "Cross-Border Latin America"],
       },
     ],
     reviews: [
       {
         reviewerName: "Lucia Mendoza",
-        reviewerCompany: "Sonoran Skincare",
+        reviewerCompany: "Caracol Beauty",
         date: "2026-04-04",
         rating: 5,
         text:
-          "Cross-border Mexico has been a 30% growth lever for us. Fairwind makes it operationally boring, which is what you want.",
+          "Cross-border Latin America has been a 30% growth lever for us. Fairwind makes it operationally boring, which is what you want.",
         verified: true,
         helpful: 26,
       },
       {
         reviewerName: "Trent Kovac",
-        reviewerCompany: "Mesatop Outdoor",
+        reviewerCompany: "Coral Crest Outdoor",
         date: "2026-02-26",
         rating: 5,
         text:
-          "West Coast 2-day from Phoenix is real. Competitive with anyone in California at lower cost.",
+          "Eastern US 2-day from Miami is real. Competitive with anyone in Atlanta at lower cost and faster Caribbean access.",
         verified: true,
         helpful: 18,
       },
@@ -2039,7 +2138,7 @@ export const partners: Partner[] = [
         date: "2026-01-14",
         rating: 4,
         text:
-          "Strong on US West and Mexico. East Coast is fine but adds a day vs. our previous Midwest 3PL.",
+          "Strong on Eastern US and Caribbean. West Coast is fine but adds a day vs. our previous Texas 3PL.",
         verified: true,
         helpful: 8,
       },
@@ -2049,7 +2148,7 @@ export const partners: Partner[] = [
         date: "2025-11-30",
         rating: 5,
         text:
-          "Bilingual customer service handoffs are a real differentiator for our Mexico customers.",
+          "Bilingual customer service handoffs are a real differentiator for our Latin America customers.",
         verified: true,
         helpful: 14,
       },
@@ -2069,17 +2168,17 @@ export const partners: Partner[] = [
         date: "2025-08-22",
         rating: 5,
         text:
-          "Onboarded our Mexico expansion in 6 weeks including broker setup. Smooth.",
+          "Onboarded our Latin America expansion in 6 weeks including broker setup. Smooth.",
         verified: true,
         helpful: 11,
       },
       {
         reviewerName: "Brandon Yates",
-        reviewerCompany: "Joshua Tree Goods",
+        reviewerCompany: "Coastline Goods",
         date: "2025-06-29",
         rating: 4,
         text:
-          "Solid 3PL with a regional specialty that genuinely helps Southwest brands.",
+          "Solid 3PL with a regional specialty that genuinely helps Southeast and Caribbean-focused brands.",
         verified: true,
         helpful: 6,
       },
@@ -2095,6 +2194,14 @@ export const partners: Partner[] = [
       },
     ],
     ratingBreakdown: { 5: 76, 4: 38, 3: 12, 2: 5, 1: 3 },
+
+    country: "USA",
+    state: "florida",
+    stateFullName: "Florida",
+    city: "miami",
+    cityFullName: "Miami",
+    servedStates: ["florida", "georgia", "texas", "california", "new-york"],
+    serviceCategories: ["dtc-fulfillment", "fba-prep-services", "cross-border-fulfillment", "cold-storage"],
   },
 ];
 
@@ -2105,7 +2212,7 @@ export const partners: Partner[] = [
 export const categories: Category[] = [
   {
     name: "FBA Prep",
-    slug: "fba-prep",
+    slug: "fba-prep-services",
     description: "Amazon-compliant prep, labeling, and inbound logistics.",
     partnerCount: 142,
     iconKey: "package",
@@ -2133,31 +2240,31 @@ export const categories: Category[] = [
   },
   {
     name: "Returns",
-    slug: "returns",
+    slug: "returns-management",
     description: "Reverse logistics, inspection, and reconditioning.",
     partnerCount: 67,
     iconKey: "rotate",
   },
   {
     name: "Kitting",
-    slug: "kitting",
+    slug: "kitting-and-assembly",
     description: "Custom assembly, bundling, and subscription box builds.",
     partnerCount: 91,
     iconKey: "boxes",
   },
   {
     name: "Cross-Border",
-    slug: "cross-border",
+    slug: "cross-border-fulfillment",
     description: "International shipping, customs, and duty management.",
     partnerCount: 52,
     iconKey: "globe",
   },
   {
-    name: "Heavy & Bulky",
-    slug: "heavy-bulky",
-    description: "Oversized item fulfillment and white-glove delivery.",
-    partnerCount: 29,
-    iconKey: "scale",
+    name: "Subscription Boxes",
+    slug: "subscription-box-fulfillment",
+    description: "Monthly cadence assembly, custom dunnage, and inserts.",
+    partnerCount: 54,
+    iconKey: "boxes",
   },
 ];
 
@@ -2250,11 +2357,11 @@ export const usStates = [
   "California",
   "Texas",
   "New York",
+  "Florida",
   "Illinois",
+  "Pennsylvania",
   "Georgia",
   "Ohio",
-  "Washington",
-  "Arizona",
 ];
 
 export const sortOptions = [
@@ -2292,4 +2399,47 @@ export function coverGradientCss(g: CoverGradient): string {
     case "blue-indigo":
       return "linear-gradient(135deg, #1d4ed8 0%, #312e81 100%)";
   }
+}
+
+// ---------------------------------------------------------------------------
+// Phase 1C SEO query helpers
+// ---------------------------------------------------------------------------
+
+export function getPartnersByCategory(categorySlug: string): Partner[] {
+  return partners.filter((p) => p.serviceCategories.includes(categorySlug));
+}
+
+export function getPartnersByCountry(country: CountryName): Partner[] {
+  return partners.filter((p) => p.country === country);
+}
+
+export function getPartnersByState(stateSlug: string): Partner[] {
+  return partners.filter((p) => p.servedStates.includes(stateSlug));
+}
+
+export function getPartnersByCity(citySlug: string): Partner[] {
+  return partners.filter((p) => p.city === citySlug);
+}
+
+export function getPartnersByCategoryAndState(
+  categorySlug: string,
+  stateSlug: string
+): Partner[] {
+  return partners.filter(
+    (p) =>
+      p.serviceCategories.includes(categorySlug) &&
+      p.servedStates.includes(stateSlug)
+  );
+}
+
+export function getStatePartnerCount(stateSlug: string): number {
+  return getPartnersByState(stateSlug).length;
+}
+
+export function getCityPartnerCount(citySlug: string): number {
+  return getPartnersByCity(citySlug).length;
+}
+
+export function getCategoryPartnerCount(categorySlug: string): number {
+  return getPartnersByCategory(categorySlug).length;
 }

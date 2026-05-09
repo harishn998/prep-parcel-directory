@@ -25,47 +25,60 @@ function GithubIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-const columns = [
+type FooterLink = { label: string; href: string };
+
+const columns: { heading: string; links: FooterLink[] }[] = [
   {
     heading: "Categories",
     links: [
-      "FBA Prep",
-      "DTC Fulfillment",
-      "Cold Storage",
-      "B2B Freight",
-      "Returns",
-      "Kitting",
+      { label: "FBA Prep", href: "/category/fba-prep-services" },
+      { label: "DTC Fulfillment", href: "/category/dtc-fulfillment" },
+      { label: "Cold Storage", href: "/category/cold-storage" },
+      { label: "B2B Freight", href: "/category/b2b-freight" },
+      { label: "Returns", href: "/category/returns-management" },
+      { label: "Kitting", href: "/category/kitting-and-assembly" },
     ],
   },
   {
     heading: "Locations",
     links: [
-      "United States",
-      "Canada",
-      "United Kingdom",
-      "California",
-      "Texas",
-      "Ontario",
+      { label: "United States", href: "/location/usa" },
+      { label: "Canada", href: "/location/canada" },
+      { label: "United Kingdom", href: "/location/uk" },
+      { label: "California", href: "/location/usa/california" },
+      { label: "Texas", href: "/location/usa/texas" },
+      { label: "Ontario", href: "/location/canada/ontario" },
     ],
   },
   {
     heading: "Resources",
     links: [
-      "How it works",
-      "3PL Buyer's Guide",
-      "Compare partners",
-      "Pricing benchmarks",
-      "Case studies",
-      "Blog",
+      { label: "How it works", href: "#" },
+      { label: "3PL Buyer's Guide", href: "#" },
+      { label: "Compare partners", href: "#" },
+      { label: "Pricing benchmarks", href: "#" },
+      { label: "Case studies", href: "#" },
+      { label: "Blog", href: "#" },
     ],
   },
   {
     heading: "Company",
-    links: ["About", "Careers", "Contact", "Press", "Partner program"],
+    links: [
+      { label: "About", href: "#" },
+      { label: "Careers", href: "#" },
+      { label: "Contact", href: "#" },
+      { label: "Press", href: "#" },
+      { label: "Partner program", href: "#" },
+    ],
   },
   {
     heading: "Legal",
-    links: ["Privacy", "Terms", "Cookies", "Vetting standards"],
+    links: [
+      { label: "Privacy", href: "#" },
+      { label: "Terms", href: "#" },
+      { label: "Cookies", href: "#" },
+      { label: "Vetting standards", href: "#" },
+    ],
   },
 ];
 
@@ -99,13 +112,22 @@ export function Footer() {
               </h3>
               <ul className="mt-4 space-y-3">
                 {col.links.map((link) => (
-                  <li key={link}>
-                    <a
-                      href="#"
-                      className="text-[14px] text-text-2 transition-colors duration-200 hover:text-navy"
-                    >
-                      {link}
-                    </a>
+                  <li key={link.label}>
+                    {link.href.startsWith("/") ? (
+                      <Link
+                        href={link.href}
+                        className="text-[14px] text-text-2 transition-colors duration-200 hover:text-navy"
+                      >
+                        {link.label}
+                      </Link>
+                    ) : (
+                      <a
+                        href={link.href}
+                        className="text-[14px] text-text-2 transition-colors duration-200 hover:text-navy"
+                      >
+                        {link.label}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>

@@ -11,50 +11,22 @@ import {
 } from "@/components/ui/accordion";
 import { CheckboxList } from "./checkbox-list";
 import { LocationTree } from "./location-tree";
-import { VolumeRadio, type VolumeValue } from "./volume-radio";
-import { RatingRadio, type RatingValue } from "./rating-radio";
+import { VolumeRadio } from "./volume-radio";
+import { RatingRadio } from "./rating-radio";
 import {
   serviceFilters,
   integrationFilters,
   certificationFilters,
 } from "@/lib/sample-data";
+import {
+  type Filters,
+  emptyFilters,
+  hasAnyFilter,
+} from "@/lib/filter-logic";
 
-export type Filters = {
-  search: string;
-  services: Set<string>;
-  locations: Set<string>;
-  integrations: Set<string>;
-  certifications: Set<string>;
-  volume: VolumeValue;
-  rating: RatingValue;
-  quickFilters: Set<string>;
-};
-
-export function emptyFilters(): Filters {
-  return {
-    search: "",
-    services: new Set(),
-    locations: new Set(),
-    integrations: new Set(),
-    certifications: new Set(),
-    volume: "any",
-    rating: "any",
-    quickFilters: new Set(),
-  };
-}
-
-export function hasAnyFilter(f: Filters): boolean {
-  return (
-    f.search.trim() !== "" ||
-    f.services.size > 0 ||
-    f.locations.size > 0 ||
-    f.integrations.size > 0 ||
-    f.certifications.size > 0 ||
-    f.volume !== "any" ||
-    f.rating !== "any" ||
-    f.quickFilters.size > 0
-  );
-}
+// Re-export so existing call sites importing from filter-sidebar still work.
+export { emptyFilters, hasAnyFilter };
+export type { Filters };
 
 function toggleSet(prev: Set<string>, value: string): Set<string> {
   const next = new Set(prev);
@@ -67,17 +39,25 @@ export function FilterSidebar({
   filters,
   onChange,
   onClearAll,
+  lockedServices,
+  lockedLocations,
 }: {
   filters: Filters;
   onChange: (filters: Filters) => void;
   onClearAll: () => void;
+  lockedServices?: Set<string>;
+  lockedLocations?: Set<string>;
 }) {
   const set = <K extends keyof Filters>(key: K, value: Filters[K]) =>
     onChange({ ...filters, [key]: value });
 
   const toggle = (key: "services" | "locations" | "integrations" | "certifications") =>
-    (value: string) =>
+    (value: string) => {
+      // Don't allow toggling locked items off
+      if (key === "services" && lockedServices?.has(value)) return;
+      if (key === "locations" && lockedLocations?.has(value)) return;
       set(key, toggleSet(filters[key], value));
+    };
 
   return (
     <aside aria-label="Filters" className="flex flex-col gap-5">
@@ -122,6 +102,7 @@ export function FilterSidebar({
             selected={filters.services}
             onToggle={toggle("services")}
             initialVisible={6}
+            lockedSet={lockedServices}
           />
         </FilterAccordion>
 
@@ -129,6 +110,7 @@ export function FilterSidebar({
           <LocationTree
             selected={filters.locations}
             onToggle={toggle("locations")}
+            lockedSet={lockedLocations}
           />
         </FilterAccordion>
 

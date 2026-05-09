@@ -7,7 +7,8 @@
       "Bash(npx tsc *)",
       "Bash(npm run *)",
       "Bash(PORT=3030 npm run dev)",
-      "Bash(echo \"started, pid=$!\")"
+      "Bash(echo \"started, pid=$!\")",
+      "Bash(python3 -c ' *)"
     ]
   }
 }
