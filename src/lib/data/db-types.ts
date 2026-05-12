@@ -100,6 +100,18 @@ export interface WarehouseRow {
   created_at: string;
 }
 
+export type UserRole = "user" | "admin";
+
+export interface ProfileRow {
+  id: string;
+  email: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  role: UserRole;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -118,6 +130,14 @@ export interface Database {
         Insert: Partial<WarehouseRow>;
         Update: Partial<WarehouseRow>;
       };
+      profiles: {
+        Row: ProfileRow;
+        Insert: Partial<ProfileRow>;
+        Update: Partial<ProfileRow>;
+      };
+    };
+    Enums: {
+      user_role: UserRole;
     };
   };
 }
