@@ -1,15 +1,26 @@
 import type { MetadataRoute } from "next";
 
-const BASE = "https://prepparcelpartners.example";
-
 export default function robots(): MetadataRoute.Robots {
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://prep-parcel-directory.vercel.app";
+
   return {
     rules: [
       {
         userAgent: "*",
         allow: "/",
+        disallow: [
+          "/admin/",
+          "/admin/*",
+          "/api/",
+          "/api/*",
+          "/auth/",
+          "/auth/*",
+          "/login",
+        ],
       },
     ],
-    sitemap: `${BASE}/sitemap.xml`,
+    sitemap: `${siteUrl}/sitemap.xml`,
+    host: siteUrl,
   };
 }
