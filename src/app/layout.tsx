@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { poppins, jetbrainsMono } from "@/lib/fonts";
+import { getRobotsMetadata } from "@/lib/seo/noindex";
+import { NoindexBanner } from "@/components/layout/noindex-banner";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -9,6 +11,7 @@ export const metadata: Metadata = {
   title: "Prep Parcel Partners — The 3PL directory for serious eCommerce brands",
   description:
     "A premium directory of vetted 3PL warehouse and fulfillment partners. Find your next fulfillment partner across the US, Canada, and UK.",
+  robots: getRobotsMetadata(),
 };
 
 export default function RootLayout({
@@ -22,6 +25,7 @@ export default function RootLayout({
       className={`${poppins.variable} ${jetbrainsMono.variable} h-full`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
+        <NoindexBanner />
         {children}
       </body>
     </html>
