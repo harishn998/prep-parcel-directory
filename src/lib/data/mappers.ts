@@ -6,6 +6,8 @@ import type {
   CountryName,
 } from "./types";
 import type { PartnerRow, ReviewRow, WarehouseRow } from "./db-types";
+import type { PartnerFormData, PartnerUpdateData } from "@/lib/validation/partner";
+import type { WarehouseFormData, WarehouseUpdateData } from "@/lib/validation/warehouse";
 
 const COVER_GRADIENTS: ReadonlySet<CoverGradient> = new Set([
   "navy-blue",
@@ -135,4 +137,136 @@ export function mapPartnerRow(
     servedStates: row.served_states ?? [],
     serviceCategories: row.service_categories ?? [],
   };
+}
+
+// ─────────────────────────────────────
+// Write-side mappers: form (camelCase) → DB row (snake_case)
+// Used by admin server actions to insert/update partners + warehouses.
+// ─────────────────────────────────────
+
+type PartnerWriteRow = Partial<
+  Omit<PartnerRow, "id" | "created_at" | "updated_at">
+>;
+
+export function partnerFormToInsertRow(form: PartnerFormData): PartnerWriteRow {
+  return {
+    slug: form.slug,
+    name: form.name,
+    tagline: form.tagline ?? null,
+    description: form.description ?? null,
+
+    location: form.location,
+    country: form.country,
+    country_code: form.countryCode,
+    state: form.state,
+    state_full_name: form.stateFullName,
+    city: form.city ?? null,
+    city_full_name: form.cityFullName ?? null,
+    served_states: form.servedStates,
+
+    year_founded: form.yearFounded ?? null,
+    employee_count: form.employeeCount ?? null,
+    minimum_order_volume: form.minimumOrderVolume ?? null,
+    pricing_model: form.pricingModel ?? null,
+    response_time: form.responseTime ?? null,
+    fulfillment_speed: form.fulfillmentSpeed ?? null,
+    order_accuracy: form.orderAccuracy ?? null,
+    active_brands_served: form.activeBrandsServed ?? null,
+
+    services: form.services,
+    service_categories: form.serviceCategories,
+    integrations: form.integrations,
+    certifications: form.certifications,
+    specialties: form.specialties,
+
+    contact: form.contact ?? null,
+
+    verified: form.verified,
+    is_featured: form.isFeatured,
+    is_active: form.isActive,
+
+    meta_title: form.metaTitle ?? null,
+    meta_description: form.metaDescription ?? null,
+  };
+}
+
+export function partnerUpdateToRow(form: PartnerUpdateData): PartnerWriteRow {
+  const out: PartnerWriteRow = {};
+  if (form.slug !== undefined) out.slug = form.slug;
+  if (form.name !== undefined) out.name = form.name;
+  if (form.tagline !== undefined) out.tagline = form.tagline;
+  if (form.description !== undefined) out.description = form.description;
+
+  if (form.location !== undefined) out.location = form.location;
+  if (form.country !== undefined) out.country = form.country;
+  if (form.countryCode !== undefined) out.country_code = form.countryCode;
+  if (form.state !== undefined) out.state = form.state;
+  if (form.stateFullName !== undefined) out.state_full_name = form.stateFullName;
+  if (form.city !== undefined) out.city = form.city;
+  if (form.cityFullName !== undefined) out.city_full_name = form.cityFullName;
+  if (form.servedStates !== undefined) out.served_states = form.servedStates;
+
+  if (form.yearFounded !== undefined) out.year_founded = form.yearFounded;
+  if (form.employeeCount !== undefined) out.employee_count = form.employeeCount;
+  if (form.minimumOrderVolume !== undefined)
+    out.minimum_order_volume = form.minimumOrderVolume;
+  if (form.pricingModel !== undefined) out.pricing_model = form.pricingModel;
+  if (form.responseTime !== undefined) out.response_time = form.responseTime;
+  if (form.fulfillmentSpeed !== undefined)
+    out.fulfillment_speed = form.fulfillmentSpeed;
+  if (form.orderAccuracy !== undefined) out.order_accuracy = form.orderAccuracy;
+  if (form.activeBrandsServed !== undefined)
+    out.active_brands_served = form.activeBrandsServed;
+
+  if (form.services !== undefined) out.services = form.services;
+  if (form.serviceCategories !== undefined)
+    out.service_categories = form.serviceCategories;
+  if (form.integrations !== undefined) out.integrations = form.integrations;
+  if (form.certifications !== undefined)
+    out.certifications = form.certifications;
+  if (form.specialties !== undefined) out.specialties = form.specialties;
+
+  if (form.contact !== undefined) out.contact = form.contact;
+
+  if (form.verified !== undefined) out.verified = form.verified;
+  if (form.isFeatured !== undefined) out.is_featured = form.isFeatured;
+  if (form.isActive !== undefined) out.is_active = form.isActive;
+
+  if (form.metaTitle !== undefined) out.meta_title = form.metaTitle;
+  if (form.metaDescription !== undefined)
+    out.meta_description = form.metaDescription;
+
+  return out;
+}
+
+type WarehouseWriteRow = Partial<
+  Omit<WarehouseRow, "id" | "created_at">
+>;
+
+export function warehouseFormToInsertRow(
+  form: WarehouseFormData,
+  partnerId: string
+): WarehouseWriteRow {
+  return {
+    partner_id: partnerId,
+    city: form.city,
+    address: form.address ?? null,
+    sqft: form.sqft ?? null,
+    hours: form.hours ?? null,
+    services: form.services,
+    is_primary: form.isPrimary,
+  };
+}
+
+export function warehouseUpdateToRow(
+  form: WarehouseUpdateData
+): WarehouseWriteRow {
+  const out: WarehouseWriteRow = {};
+  if (form.city !== undefined) out.city = form.city;
+  if (form.address !== undefined) out.address = form.address;
+  if (form.sqft !== undefined) out.sqft = form.sqft;
+  if (form.hours !== undefined) out.hours = form.hours;
+  if (form.services !== undefined) out.services = form.services;
+  if (form.isPrimary !== undefined) out.is_primary = form.isPrimary;
+  return out;
 }
