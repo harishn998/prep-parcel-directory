@@ -148,6 +148,18 @@ export const popularSearchChips = [
   "Kitting",
 ];
 
+// Phase 2A: homepage hero pills routing to /directory?services=<slug>.
+// Slugs match `categories[].slug` so they line up with the service_categories
+// column the directory query filters on.
+export const popularSearchPills: { label: string; slug: string }[] = [
+  { label: "FBA Prep", slug: "fba-prep-services" },
+  { label: "DTC Fulfillment", slug: "dtc-fulfillment" },
+  { label: "Cold Storage", slug: "cold-storage" },
+  { label: "B2B Freight", slug: "b2b-freight" },
+  { label: "Returns", slug: "returns-management" },
+  { label: "Kitting", slug: "kitting-and-assembly" },
+];
+
 // Quick-filter chips for the directory page (8 items)
 export const directoryQuickFilters = [
   "FBA Prep",

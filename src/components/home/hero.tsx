@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
-import { popularSearchChips } from "@/lib/static-data";
+import { popularSearchPills } from "@/lib/static-data";
 import { HeroBg } from "./hero-bg";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -80,10 +83,9 @@ export function Hero() {
             >
               Popular:
             </motion.span>
-            {popularSearchChips.map((chip, idx) => (
-              <motion.button
-                key={chip}
-                type="button"
+            {popularSearchPills.map((pill, idx) => (
+              <motion.div
+                key={pill.slug}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
@@ -91,10 +93,14 @@ export function Hero() {
                   delay: 0.7 + idx * 0.06,
                   ease: EASE,
                 }}
-                className="rounded-full border border-border-soft bg-surface px-3.5 py-1.5 text-[13px] font-medium text-text-2 transition-all duration-200 hover:border-blue hover:text-navy hover:shadow-sm"
               >
-                {chip}
-              </motion.button>
+                <Link
+                  href={`/directory?services=${encodeURIComponent(pill.slug)}`}
+                  className="inline-flex rounded-full border border-border-soft bg-surface px-3.5 py-1.5 text-[13px] font-medium text-text-2 transition-all duration-200 hover:border-blue hover:text-navy hover:shadow-sm"
+                >
+                  {pill.label}
+                </Link>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -104,9 +110,18 @@ export function Hero() {
 }
 
 function SearchBar() {
+  const router = useRouter();
+  const [value, setValue] = useState("");
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const trimmed = value.trim();
+    router.push(
+      trimmed ? `/directory?q=${encodeURIComponent(trimmed)}` : "/directory"
+    );
+  };
   return (
     <form
-      onSubmit={(e) => e.preventDefault()}
+      onSubmit={onSubmit}
       className="group relative flex h-16 w-full items-center rounded-2xl border border-border-soft bg-surface shadow-sm transition-all duration-200 focus-within:border-blue focus-within:shadow-[0_0_0_4px_rgba(29,78,216,0.12)]"
     >
       <Search
@@ -115,6 +130,8 @@ function SearchBar() {
       />
       <input
         type="search"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
         placeholder="Search by service, location, or partner name"
         className="h-full flex-1 bg-transparent px-4 text-[15px] text-text placeholder:text-text-3 focus:outline-none sm:text-[16px]"
       />

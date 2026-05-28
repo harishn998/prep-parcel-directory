@@ -1,8 +1,15 @@
 import { cache } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { mapPartnerRow } from "./mappers";
-import type { Partner, CountryName } from "./types";
-import type { ReviewRow, WarehouseRow } from "./db-types";
+import type {
+  Partner,
+  CountryName,
+  DirectoryQuery,
+  DirectoryResult,
+  DirectoryFacets,
+} from "./types";
+import type { PartnerRow, ReviewRow, WarehouseRow } from "./db-types";
+import { categories, locations } from "@/lib/static-data";
 
 /**
  * Public anon-key Supabase client. No cookies, no session — safe to call
@@ -150,3 +157,157 @@ export async function getSimilarPartners(
     .sort((a, b) => overlapScore(b) - overlapScore(a))
     .slice(0, count);
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Phase 2A: server-side directory search + filters + facets
+// ─────────────────────────────────────────────────────────────────────────────
+
+const DIRECTORY_PER_PAGE_DEFAULT = 12;
+const DIRECTORY_PER_PAGE_MAX = 60;
+
+function normaliseQuery(query: DirectoryQuery) {
+  const page = Math.max(1, Math.floor(query.page ?? 1));
+  const perPage = Math.max(
+    1,
+    Math.min(DIRECTORY_PER_PAGE_MAX, Math.floor(query.perPage ?? DIRECTORY_PER_PAGE_DEFAULT))
+  );
+  return {
+    q: query.q?.trim() || undefined,
+    services:
+      query.services && query.services.length > 0 ? query.services : undefined,
+    country: query.country || undefined,
+    state: query.state || undefined,
+    city: query.city || undefined,
+    sort: query.sort ?? "relevance",
+    page,
+    perPage,
+  };
+}
+
+export const getDirectoryPartners = cache(
+  async (query: DirectoryQuery): Promise<DirectoryResult> => {
+    const n = normaliseQuery(query);
+    const supabase = createPublicClient();
+
+    let q = supabase
+      .from("partners")
+      .select("*", { count: "exact" })
+      .eq("is_active", true);
+
+    if (n.q) {
+      q = q.textSearch("search_vector", n.q, {
+        type: "websearch",
+        config: "english",
+      });
+    }
+    if (n.services) q = q.overlaps("service_categories", n.services);
+    if (n.country) q = q.eq("country_code", n.country);
+    if (n.state) q = q.contains("served_states", [n.state]);
+    if (n.city) q = q.eq("city", n.city);
+
+    switch (n.sort) {
+      case "rating":
+        q = q
+          .order("rating", { ascending: false, nullsFirst: false })
+          .order("review_count", { ascending: false });
+        break;
+      case "name":
+        q = q.order("name", { ascending: true });
+        break;
+      case "reviews":
+        q = q
+          .order("review_count", { ascending: false })
+          .order("rating", { ascending: false, nullsFirst: false });
+        break;
+      case "relevance":
+      default:
+        // Supabase JS doesn't expose ts_rank() in .order(). Featured-first
+        // then rating is a sensible default; tsvector match-set ordering is
+        // already filtered by textSearch above when q is present.
+        q = q
+          .order("is_featured", { ascending: false })
+          .order("rating", { ascending: false, nullsFirst: false });
+        break;
+    }
+
+    // Cumulative pagination (preserves Load More UX): page=N returns rows
+    // 0..(N*perPage − 1). `total` (from { count: "exact" }) is independent
+    // of the range window.
+    q = q.range(0, n.page * n.perPage - 1);
+
+    const partnersRes = await q;
+    if (partnersRes.error) throw partnersRes.error;
+    const rows = (partnersRes.data ?? []) as PartnerRow[];
+    const total = partnersRes.count ?? rows.length;
+
+    const ids = rows.map((r) => r.id);
+    let reviews: ReviewRow[] = [];
+    let warehouses: WarehouseRow[] = [];
+    if (ids.length > 0) {
+      const [reviewsRes, warehousesRes] = await Promise.all([
+        supabase.from("reviews").select("*").in("partner_id", ids),
+        supabase.from("warehouses").select("*").in("partner_id", ids),
+      ]);
+      if (reviewsRes.error) throw reviewsRes.error;
+      if (warehousesRes.error) throw warehousesRes.error;
+      reviews = (reviewsRes.data ?? []) as ReviewRow[];
+      warehouses = (warehousesRes.data ?? []) as WarehouseRow[];
+    }
+
+    const reviewsByPartner = groupBy(reviews, (r) => r.partner_id);
+    const whByPartner = groupBy(warehouses, (w) => w.partner_id);
+
+    const partners = rows.map((p) =>
+      mapPartnerRow(
+        p,
+        reviewsByPartner.get(p.id) ?? [],
+        sortPrimaryFirst(whByPartner.get(p.id) ?? [])
+      )
+    );
+
+    return { partners, total, page: n.page, perPage: n.perPage };
+  }
+);
+
+interface FacetRpcRow {
+  value: string;
+  count: number;
+}
+interface FacetRpcResponse {
+  services: FacetRpcRow[];
+  countries: FacetRpcRow[];
+}
+
+export const getDirectoryFacets = cache(
+  async (query: DirectoryQuery): Promise<DirectoryFacets> => {
+    const n = normaliseQuery(query);
+    const supabase = createPublicClient();
+
+    const { data, error } = await supabase.rpc("directory_facets", {
+      p_q: n.q ?? null,
+      p_services: n.services ?? null,
+      p_country_code: n.country ?? null,
+      p_state_slug: n.state ?? null,
+      p_city_slug: n.city ?? null,
+    });
+    if (error) throw error;
+
+    const raw = (data ?? { services: [], countries: [] }) as FacetRpcResponse;
+
+    const serviceLabel = new Map(categories.map((c) => [c.slug, c.name]));
+    const countryLabel = new Map(locations.map((l) => [l.flag, l.country]));
+
+    return {
+      services: (raw.services ?? []).map((r) => ({
+        value: r.value,
+        label: serviceLabel.get(r.value) ?? r.value,
+        count: Number(r.count),
+      })),
+      countries: (raw.countries ?? []).map((r) => ({
+        value: r.value,
+        label: countryLabel.get(r.value) ?? r.value,
+        count: Number(r.count),
+      })),
+    };
+  }
+);

@@ -41,12 +41,16 @@ export function FilterSidebar({
   onClearAll,
   lockedServices,
   lockedLocations,
+  serviceItems,
+  countryCounts,
 }: {
   filters: Filters;
   onChange: (filters: Filters) => void;
   onClearAll: () => void;
   lockedServices?: Set<string>;
   lockedLocations?: Set<string>;
+  serviceItems?: { name: string; count: number }[];
+  countryCounts?: Record<string, number>;
 }) {
   const set = <K extends keyof Filters>(key: K, value: Filters[K]) =>
     onChange({ ...filters, [key]: value });
@@ -98,7 +102,7 @@ export function FilterSidebar({
       >
         <FilterAccordion value="services" label="Service Type">
           <CheckboxList
-            items={serviceFilters}
+            items={serviceItems ?? serviceFilters}
             selected={filters.services}
             onToggle={toggle("services")}
             initialVisible={6}
@@ -111,6 +115,7 @@ export function FilterSidebar({
             selected={filters.locations}
             onToggle={toggle("locations")}
             lockedSet={lockedLocations}
+            countryCounts={countryCounts}
           />
         </FilterAccordion>
 

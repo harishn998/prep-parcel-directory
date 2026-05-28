@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { poppins, jetbrainsMono } from "@/lib/fonts";
 import { getRobotsMetadata } from "@/lib/seo/noindex";
 import { NoindexBanner } from "@/components/layout/noindex-banner";
@@ -26,7 +27,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <NoindexBanner />
-        {children}
+        <NuqsAdapter>{children}</NuqsAdapter>
       </body>
     </html>
   );

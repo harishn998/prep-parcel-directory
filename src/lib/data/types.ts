@@ -71,3 +71,36 @@ export type Partner = {
   servedStates: string[]; // includes primary state; states this partner can serve
   serviceCategories: string[]; // taxonomy category slugs the partner offers
 };
+
+// Phase 2A: server-evaluated directory query
+
+export type DirectorySort = "relevance" | "rating" | "name" | "reviews";
+
+export interface DirectoryQuery {
+  q?: string;
+  services?: string[]; // service_category slugs
+  country?: string; // country_code: US | CA | GB
+  state?: string; // state slug (matched against served_states[])
+  city?: string; // city slug
+  sort?: DirectorySort;
+  page?: number; // 1-based
+  perPage?: number; // default 12
+}
+
+export interface DirectoryResult {
+  partners: Partner[];
+  total: number;
+  page: number;
+  perPage: number;
+}
+
+export interface DirectoryFacetItem {
+  value: string;
+  label: string;
+  count: number;
+}
+
+export interface DirectoryFacets {
+  services: DirectoryFacetItem[];
+  countries: DirectoryFacetItem[];
+}

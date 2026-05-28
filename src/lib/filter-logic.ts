@@ -67,7 +67,7 @@ const partnerVolumeMap: Record<string, number> = {
 // Maps state display name → slug, and reverse, so the location filter can
 // match partners whose servedStates carries slugs (e.g. "california") even
 // when the filter token is the display name ("California").
-const STATE_NAME_TO_SLUG: Record<string, string> = {
+export const STATE_NAME_TO_SLUG: Record<string, string> = {
   California: "california",
   Texas: "texas",
   "New York": "new-york",
@@ -83,9 +83,49 @@ const STATE_NAME_TO_SLUG: Record<string, string> = {
   Scotland: "scotland",
 };
 
-const STATE_SLUG_TO_NAME: Record<string, string> = Object.fromEntries(
+export const STATE_SLUG_TO_NAME: Record<string, string> = Object.fromEntries(
   Object.entries(STATE_NAME_TO_SLUG).map(([k, v]) => [v, k])
 );
+
+// Phase 2A: apply only the dimensions that the server-side query does NOT
+// handle. The server already filters by q/services/country/state/city, so
+// here we narrow further by the dimensions that stay client-side
+// (integrations, certifications, volume, rating, quickFilters). search and
+// services/locations are skipped on purpose.
+export function applyClientOnlyFilters(items: Partner[], f: Filters): Partner[] {
+  const minRating = minRatingMap[f.rating];
+  const minVolume = minVolumeMap[f.volume];
+  return items.filter((p) => {
+    if (p.rating < minRating) return false;
+    if (minVolume > 0 && partnerVolumeMap[p.minimumOrderVolume] < minVolume) {
+      return false;
+    }
+    if (f.integrations.size > 0) {
+      const partnerIntegrations = new Set(p.integrations);
+      for (const i of f.integrations) {
+        if (!partnerIntegrations.has(i)) return false;
+      }
+    }
+    if (f.certifications.size > 0) {
+      const partnerCerts = new Set(p.certifications);
+      for (const c of f.certifications) {
+        if (!partnerCerts.has(c)) return false;
+      }
+    }
+    if (f.quickFilters.size > 0) {
+      const partnerServices = new Set(p.services);
+      let hit = false;
+      for (const s of f.quickFilters) {
+        if (partnerServices.has(s)) {
+          hit = true;
+          break;
+        }
+      }
+      if (!hit) return false;
+    }
+    return true;
+  });
+}
 
 export function applyFilters(items: Partner[], f: Filters): Partner[] {
   const search = f.search.trim().toLowerCase();

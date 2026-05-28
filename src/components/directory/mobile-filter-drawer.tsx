@@ -19,6 +19,8 @@ export function MobileFilterDrawer({
   activeCount,
   lockedServices,
   lockedLocations,
+  serviceItems,
+  countryCounts,
 }: {
   filters: Filters;
   onChange: (filters: Filters) => void;
@@ -26,6 +28,8 @@ export function MobileFilterDrawer({
   activeCount: number;
   lockedServices?: Set<string>;
   lockedLocations?: Set<string>;
+  serviceItems?: { name: string; count: number }[];
+  countryCounts?: Record<string, number>;
 }) {
   return (
     <Sheet>
@@ -63,6 +67,8 @@ export function MobileFilterDrawer({
           onClearAll={onClearAll}
           lockedServices={lockedServices}
           lockedLocations={lockedLocations}
+          serviceItems={serviceItems}
+          countryCounts={countryCounts}
         />
       </SheetContent>
     </Sheet>

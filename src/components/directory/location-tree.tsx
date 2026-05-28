@@ -19,10 +19,12 @@ export function LocationTree({
   selected,
   onToggle,
   lockedSet,
+  countryCounts,
 }: {
   selected: Set<string>;
   onToggle: (value: string) => void;
   lockedSet?: Set<string>;
+  countryCounts?: Record<string, number>;
 }) {
   // Pick the country to default-open: if a region is locked, open the matching country.
   const defaultOpen = (() => {
@@ -70,6 +72,14 @@ export function LocationTree({
                   className="border-border-soft data-[state=checked]:border-blue data-[state=checked]:bg-blue disabled:opacity-100"
                 />
                 <span className="font-medium">{country.name}</span>
+                {typeof countryCounts?.[country.code] === "number" && (
+                  <span
+                    data-numeric
+                    className="text-[12px] font-normal text-text-3"
+                  >
+                    {countryCounts[country.code]}
+                  </span>
+                )}
                 {countryLocked && (
                   <Lock
                     className="h-3 w-3 text-text-3"
