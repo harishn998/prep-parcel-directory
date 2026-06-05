@@ -1,12 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import {
   MapPin,
   Calendar,
   Users,
   Star,
-  BadgeCheck,
   ArrowUpRight,
   Heart,
   Share2,
@@ -14,6 +14,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
 import { coverGradientCss } from "@/lib/static-data";
+import { LogoOrInitials } from "@/components/directory/logo-or-initials";
+import { VerifiedBadge } from "@/components/directory/verified-badge";
 import type { Partner } from "@/lib/data/types";
 
 const COUNTRY_SLUG_MAP = {
@@ -37,11 +39,22 @@ export function ProfileHero({ partner }: { partner: Partner }) {
       </div>
 
       {/* Cover */}
-      <div
-        className="relative h-40 w-full md:h-60"
-        style={{ background: coverGradientCss(partner.coverGradient) }}
-        aria-hidden
-      >
+      <div className="relative h-40 w-full overflow-hidden md:h-60" aria-hidden>
+        {partner.coverImageUrl ? (
+          <Image
+            src={partner.coverImageUrl}
+            alt=""
+            fill
+            sizes="100vw"
+            priority
+            className="object-cover"
+          />
+        ) : (
+          <div
+            className="absolute inset-0"
+            style={{ background: coverGradientCss(partner.coverGradient) }}
+          />
+        )}
         <div
           className="absolute inset-0 opacity-25"
           style={{
@@ -53,15 +66,14 @@ export function ProfileHero({ partner }: { partner: Partner }) {
 
       {/* Header card — overlaps cover on desktop only; stacks below on mobile */}
       <div className="mx-auto max-w-[1280px] px-6 md:px-8">
-        <div className="relative z-10 mt-6 md:!-mt-20 rounded-2xl border border-border-soft bg-surface p-6 shadow-sm md:p-8">
+        <div className="shadow-card-static relative z-10 mt-6 md:!-mt-20 rounded-2xl border border-border-soft bg-surface p-6 md:p-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-start">
-            {/* Logo */}
-            <div
-              className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl border border-border-soft bg-surface text-[24px] font-semibold tracking-[-0.02em] text-navy md:h-24 md:w-24 md:text-[28px]"
-              aria-hidden
-            >
-              {partner.logoPlaceholder}
-            </div>
+            <LogoOrInitials
+              logoUrl={partner.logoUrl}
+              initials={partner.logoPlaceholder}
+              name={partner.name}
+              size="lg"
+            />
 
             {/* Main info */}
             <div className="flex-1 min-w-0">
@@ -69,12 +81,7 @@ export function ProfileHero({ partner }: { partner: Partner }) {
                 <h1 className="text-[28px] font-semibold tracking-[-0.025em] text-text md:text-[36px]">
                   {partner.name}
                 </h1>
-                {partner.verified && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1 text-[12px] font-medium text-success">
-                    <BadgeCheck className="h-3.5 w-3.5" strokeWidth={2.5} />
-                    Verified
-                  </span>
-                )}
+                {partner.verified && <VerifiedBadge size="md" />}
               </div>
 
               <p className="mt-2 max-w-2xl text-[16px] leading-[1.6] text-text-2 md:text-[17px]">

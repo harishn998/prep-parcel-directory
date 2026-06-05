@@ -93,6 +93,8 @@ export function mapPartnerRow(
     verified: row.verified ?? false,
     description: row.description ?? "",
     logoPlaceholder: row.logo_placeholder ?? "",
+    logoUrl: row.logo_url ?? null,
+    coverImageUrl: row.cover_image_url ?? null,
 
     tagline: row.tagline ?? "",
     yearFounded: row.year_founded ?? 0,

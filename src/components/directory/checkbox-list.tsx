@@ -24,7 +24,7 @@ export function CheckboxList({
   const visible = showAll ? items : items.slice(0, initialVisible);
 
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-0.5">
       {visible.map((item) => {
         const id = `cb-${item.name.replace(/\s+/g, "-").toLowerCase()}`;
         const isLocked = lockedSet?.has(item.name) ?? false;
@@ -34,13 +34,13 @@ export function CheckboxList({
             key={item.name}
             htmlFor={id}
             className={[
-              "flex items-center justify-between gap-3 text-[14px] transition-colors duration-200",
+              "-mx-2 flex items-center justify-between gap-3 rounded-md px-2 py-1.5 text-[14px] transition-colors duration-150",
               isLocked
                 ? "cursor-default text-text-3"
-                : "cursor-pointer text-text-2 hover:text-text",
+                : "cursor-pointer text-text-2 hover:bg-secondary hover:text-text",
             ].join(" ")}
           >
-            <span className="flex items-center gap-2.5">
+            <span className="flex min-w-0 items-center gap-2.5">
               <Checkbox
                 id={id}
                 checked={isChecked}
@@ -50,17 +50,20 @@ export function CheckboxList({
                 disabled={isLocked}
                 className="border-border-soft data-[state=checked]:border-blue data-[state=checked]:bg-blue disabled:opacity-100"
               />
-              <span>{item.name}</span>
+              <span className="truncate">{item.name}</span>
               {isLocked && (
                 <Lock
-                  className="h-3 w-3 text-text-3"
+                  className="h-3 w-3 shrink-0 text-text-3"
                   strokeWidth={2}
                   aria-label="Locked filter"
                 />
               )}
             </span>
             {typeof item.count === "number" && (
-              <span data-numeric className="text-[12px] text-text-3">
+              <span
+                data-numeric
+                className="shrink-0 text-[12px] tabular-nums text-text-3"
+              >
                 {item.count}
               </span>
             )}

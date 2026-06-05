@@ -21,6 +21,8 @@ export const partners: Partner[] = [
     description:
       "Premium FBA prep and DTC fulfillment for ambitious DTC brands shipping across North America. Same-day cutoffs and dedicated account managers.",
     logoPlaceholder: "NF",
+    logoUrl: null,
+    coverImageUrl: null,
 
     tagline: "Premium FBA prep and DTC fulfillment for North American brands.",
     yearFounded: 2014,
@@ -227,6 +229,8 @@ export const partners: Partner[] = [
     description:
       "Enterprise-grade 3PL with 12 distribution centers across the US. Specialists in complex kitting and temperature-controlled freight.",
     logoPlaceholder: "ML",
+    logoUrl: null,
+    coverImageUrl: null,
 
     tagline: "Enterprise fulfillment with cold-chain and complex kitting.",
     yearFounded: 2008,
@@ -412,6 +416,8 @@ export const partners: Partner[] = [
     description:
       "West Coast port-adjacent fulfillment. Direct drayage from Long Beach and LA terminals plus integrated FBA prep on the same campus.",
     logoPlaceholder: "HF",
+    logoUrl: null,
+    coverImageUrl: null,
 
     tagline: "Port-adjacent drayage and FBA prep on a single West Coast campus.",
     yearFounded: 2011,
@@ -580,6 +586,8 @@ export const partners: Partner[] = [
     description:
       "East Coast fulfillment hub built for subscription brands and high-velocity DTC. Two-day ground reaches 95% of US households from Philadelphia.",
     logoPlaceholder: "IC",
+    logoUrl: null,
+    coverImageUrl: null,
 
     tagline:
       "East Coast hub built for subscription brands and high-velocity DTC.",
@@ -751,6 +759,8 @@ export const partners: Partner[] = [
     description:
       "Boutique fulfillment for premium apparel and lifestyle brands. White-glove kitting, hand-finished packaging, and custom inserts.",
     logoPlaceholder: "SS",
+    logoUrl: null,
+    coverImageUrl: null,
 
     tagline: "Boutique fulfillment for premium apparel and lifestyle.",
     yearFounded: 2019,
@@ -915,6 +925,8 @@ export const partners: Partner[] = [
     description:
       "UK and EU fulfillment under one roof. IOSS-compliant cross-border shipping and Amazon UK FBA prep with same-day inbound receiving.",
     logoPlaceholder: "BW",
+    logoUrl: null,
+    coverImageUrl: null,
 
     tagline: "UK + EU fulfillment with IOSS-compliant cross-border shipping.",
     yearFounded: 2013,
@@ -1087,6 +1099,8 @@ export const partners: Partner[] = [
     description:
       "Northern California 3PL with strong cross-border Canada flows and West Coast 2-day reach into the PNW and BC.",
     logoPlaceholder: "CL",
+    logoUrl: null,
+    coverImageUrl: null,
 
     tagline: "West Coast fulfillment with strong cross-border Canada flows.",
     yearFounded: 2015,
@@ -1249,6 +1263,8 @@ export const partners: Partner[] = [
     description:
       "Southeast 3PL covering DTC, B2B retail, and oversized/bulky fulfillment. Strong intermodal rail access.",
     logoPlaceholder: "SB",
+    logoUrl: null,
+    coverImageUrl: null,
 
     tagline: "Southeast 3PL with deep B2B retail and heavy/bulky chops.",
     yearFounded: 2010,
@@ -1426,6 +1442,8 @@ export const partners: Partner[] = [
     description:
       "British Columbia 3PL with deep cross-border US flows. Specialists in Canadian DTC and Amazon.ca FBA prep.",
     logoPlaceholder: "PD",
+    logoUrl: null,
+    coverImageUrl: null,
 
     tagline: "Vancouver-based 3PL specializing in Canadian DTC and Amazon.ca.",
     yearFounded: 2016,
@@ -1603,6 +1621,8 @@ export const partners: Partner[] = [
     description:
       "Midwest 3PL with strong national 2-day ground coverage and an integrated FBA prep line.",
     logoPlaceholder: "AF",
+    logoUrl: null,
+    coverImageUrl: null,
 
     tagline: "Chicago 3PL with national 2-day reach and integrated FBA prep.",
     yearFounded: 2009,
@@ -1783,6 +1803,8 @@ export const partners: Partner[] = [
     description:
       "Greater London 3PL focused on DTC apparel and home goods. Strong same-day inbound receiving for fast-moving brands shipping nationally.",
     logoPlaceholder: "CS",
+    logoUrl: null,
+    coverImageUrl: null,
 
     tagline: "Greater London DTC focused on apparel and home goods.",
     yearFounded: 2018,
@@ -1945,6 +1967,8 @@ export const partners: Partner[] = [
     description:
       "Southeast 3PL with cross-border Latin America and Caribbean flows and competitive 2-day Eastern US coverage.",
     logoPlaceholder: "FW",
+    logoUrl: null,
+    coverImageUrl: null,
 
     tagline: "Miami 3PL with cross-border Latin America flows and Eastern US 2-day reach.",
     yearFounded: 2014,

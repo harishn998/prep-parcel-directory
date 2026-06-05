@@ -20,7 +20,7 @@ const volumeOptions = [
 
 export function QuoteFormCard({ partnerName }: { partnerName: string }) {
   return (
-    <section className="rounded-2xl border border-blue/30 bg-blue/[0.04] p-6">
+    <section className="shadow-card-static rounded-2xl border border-blue/30 bg-blue/[0.04] p-6">
       <h3 className="text-[16px] font-semibold tracking-[-0.01em] text-text">
         Get a quote from {partnerName}
       </h3>

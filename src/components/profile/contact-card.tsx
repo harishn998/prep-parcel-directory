@@ -6,7 +6,7 @@ import type { Partner } from "@/lib/data/types";
 
 export function ContactCard({ partner }: { partner: Partner }) {
   return (
-    <section className="rounded-2xl border border-border-soft bg-surface p-6">
+    <section className="shadow-card-static rounded-2xl border border-border-soft bg-surface p-6">
       <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-text-3">
         Contact
       </h3>

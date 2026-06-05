@@ -37,6 +37,8 @@ export type Partner = {
   verified: boolean;
   description: string;
   logoPlaceholder: string;
+  logoUrl: string | null;
+  coverImageUrl: string | null;
 
   // Phase 1B profile fields
   tagline: string;

@@ -15,7 +15,7 @@ export function QuickStatsCard({ partner }: { partner: Partner }) {
     { label: "Fulfillment speed", value: partner.fulfillmentSpeed },
   ];
   return (
-    <section className="rounded-2xl border border-border-soft bg-surface p-6">
+    <section className="shadow-card-static rounded-2xl border border-border-soft bg-surface p-6">
       <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-text-3">
         Quick stats
       </h3>

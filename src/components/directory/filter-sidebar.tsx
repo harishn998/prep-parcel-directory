@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -69,8 +69,9 @@ export function FilterSidebar({
         <button
           type="button"
           onClick={onClearAll}
-          className="self-start text-[13px] font-medium text-blue underline-offset-4 transition-colors duration-200 hover:text-navy hover:underline"
+          className="inline-flex items-center gap-1 self-start text-[13px] font-medium text-text-2 transition-colors duration-150 hover:text-text"
         >
+          <X className="h-3.5 w-3.5" strokeWidth={2} />
           Clear all filters
         </button>
       )}

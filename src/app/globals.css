@@ -141,6 +141,36 @@
       0 2px 6px -2px rgba(15, 23, 42, 0.06);
   }
 
+  /* Phase 2B card language: soft resting elevation with deeper hover shadow.
+     `.shadow-card` is for interactive cards (rows, partner cards); the hover
+     shadow deepens to telegraph clickability without a transform. List-level
+     motion adds the y-lift via framer-motion. */
+  .shadow-card {
+    box-shadow: 0 1px 3px rgba(12, 30, 62, 0.04),
+      0 4px 12px rgba(12, 30, 62, 0.04);
+    transition: box-shadow 150ms ease, border-color 150ms ease;
+  }
+  .shadow-card:hover {
+    box-shadow: 0 8px 24px -8px rgba(12, 30, 62, 0.12),
+      0 2px 6px -2px rgba(12, 30, 62, 0.06);
+  }
+  /* Same resting shadow without the hover swap — for non-interactive panels
+     (profile sidebar cards, map placeholder). */
+  .shadow-card-static {
+    box-shadow: 0 1px 3px rgba(12, 30, 62, 0.04),
+      0 4px 12px rgba(12, 30, 62, 0.04);
+  }
+
+  /* Subtle slate dot grid — used as the map-placeholder background. */
+  .bg-dot-pattern {
+    background-image: radial-gradient(
+      circle,
+      rgb(226 232 240) 1px,
+      transparent 1px
+    );
+    background-size: 16px 16px;
+  }
+
   /* Standard section vertical rhythm: 96 desktop / 64 mobile. */
   .section {
     padding-top: 64px;

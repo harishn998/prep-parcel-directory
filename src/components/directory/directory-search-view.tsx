@@ -111,6 +111,15 @@ export function DirectorySearchView({
     "page",
     parseAsInteger.withDefault(1).withOptions({ shallow: false, history: "push" })
   );
+  // Presentation-only: view is grid|rows. Uses shallow:true so toggling doesn't
+  // trigger a server refetch + skeleton flicker — the other six keys above are
+  // server-bound (shallow:false) by design.
+  const [view, setView] = useQueryState(
+    "view",
+    parseAsStringEnum<"rows" | "grid">(["rows", "grid"])
+      .withDefault("rows")
+      .withOptions({ shallow: true, history: "push", clearOnDefault: true })
+  );
 
   // Local-only state (client-side filters that don't change server data).
   const [clientFilters, setClientFilters] = useState<Filters>(() => emptyFilters());
@@ -416,6 +425,8 @@ export function DirectorySearchView({
         visible={filtered.length}
         sort={sortUiValue}
         onSortChange={onSortChange}
+        view={view}
+        onViewChange={setView}
       />
 
       <div className="bg-background pb-24">
@@ -465,6 +476,7 @@ export function DirectorySearchView({
                 partners={filtered}
                 loading={showSkeletons}
                 onClearFilters={onClearAll}
+                view={view}
               />
 
               <LoadMoreButton onClick={onLoadMore} remaining={remaining} />

@@ -25,7 +25,7 @@ export function TabServices({ partner }: { partner: Partner }) {
         {partner.detailedServices.map((service) => (
           <div
             key={service.name}
-            className="flex flex-col rounded-xl border border-border-soft bg-surface p-6"
+            className="shadow-card-static flex flex-col rounded-2xl border border-border-soft bg-surface p-6"
           >
             <div className="flex items-start justify-between gap-4">
               <h3 className="text-[16px] font-semibold tracking-[-0.01em] text-text">
