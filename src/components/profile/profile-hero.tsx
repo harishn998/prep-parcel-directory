@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb } from "@/components/shared/breadcrumb";
-import { coverGradientCss } from "@/lib/static-data";
 import { LogoOrInitials } from "@/components/directory/logo-or-initials";
 import { VerifiedBadge } from "@/components/directory/verified-badge";
 import type { Partner } from "@/lib/data/types";
@@ -41,27 +40,37 @@ export function ProfileHero({ partner }: { partner: Partner }) {
       {/* Cover */}
       <div className="relative h-40 w-full overflow-hidden md:h-60" aria-hidden>
         {partner.coverImageUrl ? (
-          <Image
-            src={partner.coverImageUrl}
-            alt=""
-            fill
-            sizes="100vw"
-            priority
-            className="object-cover"
-          />
+          <>
+            <Image
+              src={partner.coverImageUrl}
+              alt=""
+              fill
+              sizes="100vw"
+              priority
+              className="object-cover"
+            />
+            {/* Dark gradient overlay keeps any text legible over the photo */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(to bottom, rgba(12,30,62,0.4) 0%, rgba(12,30,62,0.7) 100%)",
+              }}
+            />
+          </>
         ) : (
-          <div
-            className="absolute inset-0"
-            style={{ background: coverGradientCss(partner.coverGradient) }}
-          />
+          <>
+            {/* Aurora-tinted navy — alive even without a real cover photo */}
+            <div className="absolute inset-0 bg-navy" />
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 18% 25%, rgba(99,91,255,0.4) 0%, transparent 48%), radial-gradient(circle at 85% 80%, rgba(255,122,89,0.28) 0%, transparent 48%), radial-gradient(circle at 60% 10%, rgba(29,78,216,0.3) 0%, transparent 45%)",
+              }}
+            />
+          </>
         )}
-        <div
-          className="absolute inset-0 opacity-25"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.4) 0%, transparent 35%), radial-gradient(circle at 80% 60%, rgba(255,255,255,0.25) 0%, transparent 40%)",
-          }}
-        />
       </div>
 
       {/* Header card — overlaps cover on desktop only; stacks below on mobile */}
@@ -123,7 +132,7 @@ export function ProfileHero({ partner }: { partner: Partner }) {
                 </span>
                 <span className="flex items-center gap-1.5">
                   <Star
-                    className="h-3.5 w-3.5 fill-amber text-amber"
+                    className="star-amber h-3.5 w-3.5 fill-amber text-amber"
                     strokeWidth={1.5}
                   />
                   <span data-numeric className="font-medium text-text">
@@ -139,12 +148,12 @@ export function ProfileHero({ partner }: { partner: Partner }) {
             {/* CTAs */}
             <div className="flex flex-col gap-2 md:items-end">
               <div className="flex flex-wrap items-center gap-2">
-                <Button className="h-[52px] bg-blue px-6 text-[15px] font-medium text-white hover:bg-blue-hover">
+                <Button className="btn-primary-gradient h-[52px] px-6 text-[15px] font-medium">
                   Get Quote
                 </Button>
                 <Button
                   variant="outline"
-                  className="h-[52px] border-border-soft px-5 text-[15px] font-medium text-navy hover:border-blue hover:text-blue"
+                  className="h-[52px] border-border-soft px-5 text-[15px] font-medium text-navy hover:border-indigo hover:text-indigo"
                 >
                   Visit Website
                   <ArrowUpRight
@@ -180,7 +189,7 @@ function IconButton({
     <button
       type="button"
       aria-label={label}
-      className="flex h-10 w-10 items-center justify-center rounded-lg border border-border-soft bg-surface text-text-2 transition-all duration-200 hover:border-blue hover:text-blue"
+      className="flex h-10 w-10 items-center justify-center rounded-lg border border-border-soft bg-surface text-text-2 transition-all duration-200 hover:border-indigo hover:text-indigo"
     >
       {children}
     </button>

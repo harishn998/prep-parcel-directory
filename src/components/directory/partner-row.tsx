@@ -4,6 +4,7 @@ import type { Partner } from "@/lib/data/types";
 import { LogoOrInitials } from "./logo-or-initials";
 import { ServicePill } from "./service-pill";
 import { VerifiedBadge } from "./verified-badge";
+import { FeaturedPill } from "./featured-pill";
 
 const VOLUME_LABEL: Record<Partner["minimumOrderVolume"], string> = {
   none: "No minimum",
@@ -36,7 +37,9 @@ export function PartnerRow({ partner }: { partner: Partner }) {
   return (
     <Link
       href={`/directory/${partner.slug}`}
-      className="shadow-card group flex cursor-pointer flex-col gap-4 rounded-2xl border border-border-soft bg-surface p-5 md:flex-row md:items-center md:gap-6 md:p-6"
+      className={`shadow-card group relative flex cursor-pointer flex-col gap-4 rounded-2xl border border-border-soft bg-surface p-5 md:flex-row md:items-center md:gap-6 md:p-6${
+        partner.featured ? " border-t-2 border-t-indigo" : ""
+      }`}
     >
       {/* Col 1 — Identity */}
       <div className="flex items-start gap-4 md:w-[260px] md:shrink-0">
@@ -64,7 +67,7 @@ export function PartnerRow({ partner }: { partner: Partner }) {
       <div className="flex flex-col gap-3 md:flex-1 md:border-l md:border-border-soft md:pl-6">
         <div className="flex items-center gap-1.5">
           <Star
-            className="h-4 w-4 fill-amber text-amber"
+            className="star-amber h-4 w-4 fill-amber text-amber"
             strokeWidth={1.5}
             aria-hidden
           />
@@ -84,6 +87,10 @@ export function PartnerRow({ partner }: { partner: Partner }) {
 
       {/* Col 3 — Services + CTA */}
       <div className="flex flex-col gap-3 md:w-[220px] md:shrink-0 md:items-end">
+        {/* Featured pill sits above the services, right-aligned — in-flow so it
+            never overlaps. Desktop only; the indigo top border carries it on
+            mobile where this column stacks at the bottom. */}
+        {partner.featured && <FeaturedPill className="hidden md:inline-flex" />}
         <div className="flex flex-wrap gap-1.5 md:justify-end">
           {partner.services.slice(0, 3).map((service) => (
             <ServicePill key={service}>{service}</ServicePill>

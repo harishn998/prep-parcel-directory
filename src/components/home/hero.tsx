@@ -17,6 +17,12 @@ export function Hero() {
       style={{ minHeight: 640 }}
       aria-label="Hero"
     >
+      {/* Gradient aurora — soft, slow-drifting indigo/coral/blue blobs. Sits
+          beneath the logistics-network SVG for a layered, alive hero. */}
+      <div aria-hidden className="hero-aurora">
+        <span className="hero-aurora-blue" />
+      </div>
+
       {/* Logistics-network background */}
       <HeroBg />
 
@@ -45,7 +51,7 @@ export function Hero() {
           <motion.h1
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.15, ease: EASE }}
+            transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
             className="text-[44px] font-semibold leading-[1.05] tracking-[-0.025em] text-text sm:text-[60px] md:text-[72px] lg:text-[80px]"
             style={{ fontWeight: 600 }}
           >
@@ -90,13 +96,14 @@ export function Hero() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
                   duration: 0.5,
-                  delay: 0.7 + idx * 0.06,
+                  delay: 0.7 + idx * 0.04,
                   ease: EASE,
                 }}
+                whileHover={{ y: -2 }}
               >
                 <Link
                   href={`/directory?services=${encodeURIComponent(pill.slug)}`}
-                  className="inline-flex rounded-full border border-border-soft bg-surface px-3.5 py-1.5 text-[13px] font-medium text-text-2 transition-all duration-200 hover:border-blue hover:text-navy hover:shadow-sm"
+                  className="inline-flex rounded-full border border-border-soft bg-surface px-3.5 py-1.5 text-[13px] font-medium text-text-2 transition-all duration-200 hover:border-indigo hover:text-navy hover:shadow-sm"
                 >
                   {pill.label}
                 </Link>
@@ -122,10 +129,10 @@ function SearchBar() {
   return (
     <form
       onSubmit={onSubmit}
-      className="group relative flex h-16 w-full items-center rounded-2xl border border-border-soft bg-surface shadow-sm transition-all duration-200 focus-within:border-blue focus-within:shadow-[0_0_0_4px_rgba(29,78,216,0.12)]"
+      className="group relative flex h-16 w-full items-center rounded-2xl border border-border-soft bg-surface shadow-sm transition-all duration-200 focus-within:border-indigo focus-within:shadow-[0_0_0_4px_rgba(99,91,255,0.15)]"
     >
       <Search
-        className="ml-5 h-5 w-5 shrink-0 text-text-3 transition-colors duration-200 group-focus-within:text-blue"
+        className="ml-5 h-5 w-5 shrink-0 text-text-3 transition-colors duration-200 group-focus-within:text-indigo"
         strokeWidth={2}
       />
       <input
@@ -137,7 +144,7 @@ function SearchBar() {
       />
       <button
         type="submit"
-        className="mr-2 hidden h-12 items-center rounded-xl bg-blue px-5 text-[14px] font-medium text-white transition-colors duration-200 hover:bg-blue-hover sm:inline-flex"
+        className="btn-primary-gradient mr-2 hidden h-12 items-center rounded-xl px-5 text-[14px] font-medium sm:inline-flex"
       >
         Search
       </button>

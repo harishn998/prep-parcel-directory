@@ -101,7 +101,7 @@ export function PartnerGrid({
               custom={idx}
               variants={itemVariants}
               layout
-              whileHover={{ y: -4 }}
+              whileHover={{ y: -6 }}
               transition={{ layout: { duration: 0.25, ease: [0.22, 1, 0.36, 1] } }}
             >
               {view === "grid" ? (

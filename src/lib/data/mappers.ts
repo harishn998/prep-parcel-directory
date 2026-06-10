@@ -91,6 +91,7 @@ export function mapPartnerRow(
     reviewCount: row.review_count ?? 0,
     services: row.services ?? [],
     verified: row.verified ?? false,
+    featured: row.is_featured ?? false,
     description: row.description ?? "",
     logoPlaceholder: row.logo_placeholder ?? "",
     logoUrl: row.logo_url ?? null,

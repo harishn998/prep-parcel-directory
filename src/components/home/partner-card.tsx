@@ -4,6 +4,7 @@ import type { Partner } from "@/lib/data/types";
 import { LogoOrInitials } from "@/components/directory/logo-or-initials";
 import { ServicePill } from "@/components/directory/service-pill";
 import { VerifiedBadge } from "@/components/directory/verified-badge";
+import { FeaturedPill } from "@/components/directory/featured-pill";
 
 export function PartnerCard({ partner }: { partner: Partner }) {
   const extraServices = Math.max(partner.services.length - 3, 0);
@@ -11,8 +12,14 @@ export function PartnerCard({ partner }: { partner: Partner }) {
   return (
     <Link
       href={`/directory/${partner.slug}`}
-      className="shadow-card group relative flex h-full cursor-pointer flex-col rounded-2xl border border-border-soft bg-surface p-6"
+      className={`shadow-card group relative flex h-full cursor-pointer flex-col rounded-2xl border border-border-soft bg-surface p-6${
+        partner.featured ? " border-t-2 border-t-indigo" : ""
+      }`}
     >
+      {/* Featured pill on its own line, top-right — kept OUT of the name row so
+          it never competes with the name for horizontal width. The indigo
+          top border is the primary "featured" signal; this reinforces it. */}
+      {partner.featured && <FeaturedPill className="mb-3 ml-auto" />}
       <div className="flex items-start gap-4">
         <LogoOrInitials
           logoUrl={partner.logoUrl}
@@ -36,7 +43,7 @@ export function PartnerCard({ partner }: { partner: Partner }) {
 
       <div className="mt-4 flex items-center gap-1.5">
         <Star
-          className="h-4 w-4 fill-amber text-amber"
+          className="star-amber h-4 w-4 fill-amber text-amber"
           strokeWidth={1.5}
           aria-hidden
         />

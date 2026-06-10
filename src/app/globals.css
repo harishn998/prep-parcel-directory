@@ -10,6 +10,7 @@
 
   /* Brand tokens exposed as Tailwind utilities (bg-navy, text-text-2, etc.) */
   --color-surface: var(--surface);
+  --color-surface-tint: var(--surface-tint);
   --color-navy: var(--navy);
   --color-blue: var(--blue);
   --color-blue-hover: var(--blue-hover);
@@ -18,6 +19,13 @@
   --color-text: var(--text);
   --color-text-2: var(--text-2);
   --color-text-3: var(--text-3);
+
+  /* Stripe-inspired accent system (Phase 2B-revision) */
+  --color-indigo: var(--indigo);
+  --color-indigo-hover: var(--indigo-hover);
+  --color-indigo-soft: var(--indigo-soft);
+  --color-coral: var(--coral);
+  --color-coral-soft: var(--coral-soft);
 
   --font-sans: var(--font-poppins);
   --font-mono: var(--font-jetbrains);
@@ -50,8 +58,9 @@
 
 :root {
   /* Brand tokens (single source of truth) */
-  --bg: #f8fafc;
-  --surface: #ffffff;
+  --bg: #fbfaf8; /* warm off-white page background */
+  --surface: #ffffff; /* cards stay pure white so they pop */
+  --surface-tint: #f4f2ee; /* subtle warm tint for nested surfaces */
   --navy: #0c1e3e;
   --blue: #1d4ed8;
   --blue-hover: #3b82f6;
@@ -61,6 +70,19 @@
   --text: #0f172a;
   --text-2: #475569;
   --text-3: #94a3b8;
+
+  /* Stripe-inspired accent system (Phase 2B-revision).
+     Color = meaning: indigo = energy/state, coral = trust signals only. */
+  --indigo: #635bff; /* energy / featured / active / focus */
+  --indigo-hover: #4d44e6;
+  --indigo-soft: #efeeff; /* pale indigo for fills, badges */
+  --coral: #ff7a59; /* trust signals — verified, top-rated */
+  --coral-soft: #ffe9e2;
+
+  /* Gradient stops (hero aurora + primary CTA gradient) */
+  --grad-stop-1: #635bff; /* indigo */
+  --grad-stop-2: #1d4ed8; /* blue */
+  --grad-stop-3: #ff7a59; /* coral */
 
   /* shadcn vars mapped to brand */
   --background: var(--bg);
@@ -85,7 +107,7 @@
   --destructive: #dc2626;
 
   --input: var(--border);
-  --ring: var(--blue);
+  --ring: var(--indigo); /* focus rings are indigo (state color) */
 
   --radius: 0.75rem;
 }
@@ -122,8 +144,32 @@
   }
 
   ::selection {
-    background-color: rgba(29, 78, 216, 0.15);
+    background-color: var(--indigo-soft);
     color: var(--navy);
+  }
+
+  /* Indigo focus rings everywhere. Low specificity via :where() so shadcn's
+     component-level focus-visible:ring-ring (now indigo) still composes. */
+  :where(a, button, [role="button"], input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--indigo);
+    outline-offset: 2px;
+  }
+
+  /* Subtle, warm scrollbar (webkit only — Firefox falls back gracefully). */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--surface-tint);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #dad6ce;
+    border-radius: 8px;
+    border: 3px solid var(--surface-tint);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #c9c4ba;
   }
 }
 
@@ -146,19 +192,25 @@
      shadow deepens to telegraph clickability without a transform. List-level
      motion adds the y-lift via framer-motion. */
   .shadow-card {
-    box-shadow: 0 1px 3px rgba(12, 30, 62, 0.04),
-      0 4px 12px rgba(12, 30, 62, 0.04);
-    transition: box-shadow 150ms ease, border-color 150ms ease;
+    box-shadow: 0 1px 2px rgba(12, 30, 62, 0.04),
+      0 4px 16px rgba(12, 30, 62, 0.06);
+    /* easeOutExpo — Stripe-style "expensive" deceleration. The y-lift is
+       supplied by framer-motion at the list level (inline transform wins),
+       so we animate only shadow + border here. */
+    transition: box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 200ms ease;
   }
   .shadow-card:hover {
-    box-shadow: 0 8px 24px -8px rgba(12, 30, 62, 0.12),
-      0 2px 6px -2px rgba(12, 30, 62, 0.06);
+    /* Indigo-tinted hover aura — cards lift into faint color, not gray. */
+    box-shadow: 0 4px 12px rgba(12, 30, 62, 0.06),
+      0 16px 40px rgba(99, 91, 255, 0.1);
+    border-color: rgba(99, 91, 255, 0.2);
   }
   /* Same resting shadow without the hover swap — for non-interactive panels
      (profile sidebar cards, map placeholder). */
   .shadow-card-static {
-    box-shadow: 0 1px 3px rgba(12, 30, 62, 0.04),
-      0 4px 12px rgba(12, 30, 62, 0.04);
+    box-shadow: 0 1px 2px rgba(12, 30, 62, 0.04),
+      0 4px 16px rgba(12, 30, 62, 0.06);
   }
 
   /* Subtle slate dot grid — used as the map-placeholder background. */
@@ -169,6 +221,124 @@
       transparent 1px
     );
     background-size: 16px 16px;
+  }
+  /* Faint indigo dot grid — for the "map coming soon" placeholder so it reads
+     as a deliberate, designed surface rather than an empty void. */
+  .bg-dot-pattern-indigo {
+    background-image: radial-gradient(
+      circle,
+      rgba(99, 91, 255, 0.08) 1px,
+      transparent 1px
+    );
+    background-size: 18px 18px;
+  }
+
+  /* Amber rating star — subtle drop-shadow gives the star presence. */
+  .star-amber {
+    filter: drop-shadow(0 1px 1px rgba(245, 158, 11, 0.3));
+  }
+
+  /* Primary CTA gradient (indigo → blue). Gradient placement #2: hero Search
+     button + profile "Get Quote" only. NOT navbar, NOT the navy CTA banner. */
+  .btn-primary-gradient {
+    background-image: linear-gradient(
+      135deg,
+      var(--indigo) 0%,
+      var(--blue) 100%
+    );
+    color: #fff;
+    transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 150ms ease;
+  }
+  .btn-primary-gradient:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(99, 91, 255, 0.35);
+  }
+
+  /* Featured pill — flat indigo-soft, rewards hover with a faint indigo→coral
+     gradient. Gradient placement #3. */
+  .featured-pill {
+    transition: background 200ms ease;
+  }
+  .featured-pill:hover {
+    background-image: linear-gradient(
+      135deg,
+      var(--indigo-soft),
+      var(--coral-soft)
+    );
+  }
+
+  /* Hero aurora — gradient placement #1. Soft, slow-drifting decorative blobs
+     behind the headline. Sits below the hero SVG. CSS-driven (not framer). */
+  .hero-aurora {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .hero-aurora::before,
+  .hero-aurora::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+  }
+  .hero-aurora::before {
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--indigo) 0%, transparent 60%);
+    top: -120px;
+    left: -120px;
+    animation: aurora-drift-1 60s ease-in-out infinite;
+  }
+  .hero-aurora::after {
+    width: 520px;
+    height: 520px;
+    background: radial-gradient(circle, var(--coral) 0%, transparent 60%);
+    bottom: -120px;
+    right: -100px;
+    animation: aurora-drift-2 75s ease-in-out infinite;
+  }
+  /* A third, fainter blue blob mid-top for depth. */
+  .hero-aurora-blue {
+    position: absolute;
+    width: 480px;
+    height: 480px;
+    top: -160px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.28;
+    background: radial-gradient(circle, var(--blue) 0%, transparent 60%);
+    animation: aurora-drift-1 68s ease-in-out infinite reverse;
+  }
+  @keyframes aurora-drift-1 {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(60px, 40px);
+    }
+  }
+  @keyframes aurora-drift-2 {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(-50px, -30px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-aurora::before,
+    .hero-aurora::after,
+    .hero-aurora-blue {
+      animation: none;
+    }
   }
 
   /* Standard section vertical rhythm: 96 desktop / 64 mobile. */

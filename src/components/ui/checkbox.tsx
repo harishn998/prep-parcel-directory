@@ -1,6 +1,7 @@
 "use client"
 
 import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox"
+import { motion } from "framer-motion"
 
 import { cn } from "@/lib/utils"
 import { CheckIcon } from "lucide-react"
@@ -19,8 +20,15 @@ function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
         data-slot="checkbox-indicator"
         className="grid place-content-center text-current transition-none [&>svg]:size-3.5"
       >
-        <CheckIcon
-        />
+        {/* Brief spring scale on check — tiny, satisfying tactile feedback. */}
+        <motion.span
+          className="grid place-content-center"
+          initial={{ scale: 0.85 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 500, damping: 25 }}
+        >
+          <CheckIcon />
+        </motion.span>
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   )

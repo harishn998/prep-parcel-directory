@@ -44,14 +44,14 @@ export function ActiveFilterChips({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.96 }}
               transition={{ duration: 0.18, ease: [0.22, 0.61, 0.36, 1] }}
-              className="inline-flex items-center gap-1.5 rounded-full border border-blue/30 bg-blue/10 py-1 pl-3 pr-1 text-[13px] font-medium text-navy"
+              className="inline-flex items-center gap-1.5 rounded-full border border-indigo/50 bg-indigo-soft py-1 pl-3 pr-1 text-[13px] font-medium text-indigo"
             >
               {chip.label}
               <button
                 type="button"
                 onClick={chip.onRemove}
                 aria-label={`Remove ${chip.label}`}
-                className="flex h-5 w-5 items-center justify-center rounded-full text-navy/70 transition-colors duration-200 hover:bg-blue/20 hover:text-navy"
+                className="flex h-5 w-5 items-center justify-center rounded-full text-indigo/70 transition-colors duration-200 hover:bg-indigo/15 hover:text-indigo"
               >
                 <X className="h-3 w-3" strokeWidth={2.5} />
               </button>

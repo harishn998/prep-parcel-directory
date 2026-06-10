@@ -35,6 +35,7 @@ export type Partner = {
   reviewCount: number;
   services: string[];
   verified: boolean;
+  featured?: boolean; // from is_featured — drives the directory "Featured" treatment
   description: string;
   logoPlaceholder: string;
   logoUrl: string | null;

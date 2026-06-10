@@ -26,8 +26,8 @@ export function QuickFilterStrip({
               className={[
                 "h-9 shrink-0 rounded-full border px-3.5 text-[13px] font-medium transition-all duration-200",
                 isActive
-                  ? "border-blue bg-blue text-white shadow-sm"
-                  : "border-border-soft bg-surface text-text-2 hover:border-blue hover:text-navy",
+                  ? "border-indigo bg-indigo text-white shadow-sm"
+                  : "border-border-soft bg-surface text-text-2 hover:border-indigo hover:text-navy",
               ].join(" ")}
               aria-pressed={isActive}
             >
