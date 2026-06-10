@@ -105,6 +105,8 @@ export default async function PartnerEditPage({
           initial={rowToFormData(partner)}
           warehouses={warehouses}
           meta={{ createdAt: partner.created_at, updatedAt: partner.updated_at }}
+          currentLogoUrl={partner.logo_url}
+          currentCoverUrl={partner.cover_image_url}
         />
       </div>
     </div>

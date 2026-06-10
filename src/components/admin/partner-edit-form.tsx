@@ -19,6 +19,8 @@ import {
 import { AdminFormField } from "@/components/admin/admin-form-field";
 import { AdminTagInput } from "@/components/admin/admin-tag-input";
 import { AdminConfirmModal } from "@/components/admin/admin-confirm-modal";
+import { LogoUploader } from "@/components/admin/media-upload/logo-uploader";
+import { CoverUploader } from "@/components/admin/media-upload/cover-uploader";
 import {
   updatePartner,
   togglePartnerVerified,
@@ -49,6 +51,8 @@ interface Props {
   initial: PartnerFormData;
   warehouses: WarehouseEntry[];
   meta: { createdAt: string; updatedAt: string };
+  currentLogoUrl: string | null;
+  currentCoverUrl: string | null;
 }
 
 const COUNTRY_CODE_MAP: Record<PartnerFormData["country"], PartnerFormData["countryCode"]> = {
@@ -57,16 +61,25 @@ const COUNTRY_CODE_MAP: Record<PartnerFormData["country"], PartnerFormData["coun
   UK: "GB",
 };
 
-type Tab = "basics" | "business" | "tags" | "contact" | "seo" | "warehouses";
+type Tab =
+  | "media"
+  | "basics"
+  | "business"
+  | "tags"
+  | "contact"
+  | "seo"
+  | "warehouses";
 
 export function PartnerEditForm({
   partnerId,
   initial,
   warehouses: initialWarehouses,
   meta,
+  currentLogoUrl,
+  currentCoverUrl,
 }: Props) {
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>("basics");
+  const [tab, setTab] = useState<Tab>("media");
   const [form, setForm] = useState<PartnerFormData>(initial);
   const [warehouses, setWarehouses] =
     useState<WarehouseEntry[]>(initialWarehouses);
@@ -145,6 +158,7 @@ export function PartnerEditForm({
       <div className="lg:col-span-8">
         <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
           <TabsList>
+            <TabsTab value="media">Media</TabsTab>
             <TabsTab value="basics">Basics</TabsTab>
             <TabsTab value="business">Business</TabsTab>
             <TabsTab value="tags">Services & tags</TabsTab>
@@ -152,6 +166,43 @@ export function PartnerEditForm({
             <TabsTab value="seo">SEO</TabsTab>
             <TabsTab value="warehouses">Warehouses</TabsTab>
           </TabsList>
+
+          {/* MEDIA */}
+          <TabsPanel value="media">
+            <div className="grid gap-8 rounded-xl border border-border bg-surface p-6">
+              <section className="flex flex-col gap-3">
+                <div>
+                  <h3 className="font-heading text-[15px] font-semibold text-navy">
+                    Logo
+                  </h3>
+                  <p className="mt-1 text-[13px] text-text-2">
+                    Square image, displayed at ~56px on cards and ~80px on the
+                    profile. PNG, JPG, or WebP.
+                  </p>
+                </div>
+                <LogoUploader
+                  partnerId={partnerId}
+                  currentUrl={currentLogoUrl}
+                />
+              </section>
+
+              <section className="flex flex-col gap-3">
+                <div>
+                  <h3 className="font-heading text-[15px] font-semibold text-navy">
+                    Cover image
+                  </h3>
+                  <p className="mt-1 text-[13px] text-text-2">
+                    Wide banner image, displayed at the top of the partner
+                    profile. 3:1 aspect, max 5 MB.
+                  </p>
+                </div>
+                <CoverUploader
+                  partnerId={partnerId}
+                  currentUrl={currentCoverUrl}
+                />
+              </section>
+            </div>
+          </TabsPanel>
 
           {/* BASICS */}
           <TabsPanel value="basics">

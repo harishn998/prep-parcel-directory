@@ -15,6 +15,13 @@ import {
 } from "@/lib/data/mappers";
 import { logAdminAction } from "./_audit";
 import type { ActionResult } from "./_result";
+import {
+  uploadPartnerLogo,
+  uploadPartnerCover,
+  deletePartnerLogo,
+  deletePartnerCover,
+  type CropArea,
+} from "@/lib/storage/partner-media";
 
 function revalidatePublicPartnerPages(slug?: string | null): void {
   revalidatePath("/directory");
@@ -211,4 +218,164 @@ export async function togglePartnerFeatured(
   });
   revalidatePublicPartnerPages(data.slug as string);
   return { success: true, data: { isFeatured: next } };
+}
+
+// ---------------------------------------------------------------------------
+// Phase 2C — partner media (logo + cover) upload / removal
+// ---------------------------------------------------------------------------
+
+// Refresh the partner row's slug for revalidation, then revalidate everything
+// the image appears on (public directory + this admin edit page).
+async function revalidateAfterMedia(partnerId: string): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("partners")
+    .select("slug")
+    .eq("id", partnerId)
+    .maybeSingle();
+  revalidatePublicPartnerPages((data?.slug as string | undefined) ?? null);
+  revalidatePath(`/admin/partners/${partnerId}`);
+}
+
+export async function updatePartnerLogo(
+  partnerId: string,
+  formData: FormData
+): Promise<{ success: boolean; logoUrl?: string; error?: string }> {
+  await requireAdmin();
+
+  const file = formData.get("file");
+  if (!(file instanceof File)) {
+    return { success: false, error: "No file provided" };
+  }
+
+  const result = await uploadPartnerLogo(partnerId, file);
+  if (!result.success || !result.publicUrl) {
+    return { success: false, error: result.error ?? "Upload failed" };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("partners")
+    .update({ logo_url: result.publicUrl })
+    .eq("id", partnerId);
+  if (error) {
+    return { success: false, error: `DB update failed: ${error.message}` };
+  }
+
+  await logAdminAction({
+    actionType: "partner_updated",
+    targetTable: "partners",
+    targetId: partnerId,
+    metadata: { fields: ["logo_url"] },
+  });
+
+  await revalidateAfterMedia(partnerId);
+  return { success: true, logoUrl: result.publicUrl };
+}
+
+export async function updatePartnerCover(
+  partnerId: string,
+  formData: FormData
+): Promise<{ success: boolean; coverUrl?: string; error?: string }> {
+  await requireAdmin();
+
+  const file = formData.get("file");
+  if (!(file instanceof File)) {
+    return { success: false, error: "No file provided" };
+  }
+
+  // Optional crop area (original-image pixel coords) from the crop UI
+  const cropAreaRaw = formData.get("cropArea");
+  let cropArea: CropArea | undefined;
+  if (typeof cropAreaRaw === "string" && cropAreaRaw.length > 0) {
+    try {
+      cropArea = JSON.parse(cropAreaRaw) as CropArea;
+    } catch {
+      return { success: false, error: "Invalid crop area" };
+    }
+  }
+
+  const result = await uploadPartnerCover(partnerId, file, cropArea);
+  if (!result.success || !result.publicUrl) {
+    return { success: false, error: result.error ?? "Upload failed" };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("partners")
+    .update({ cover_image_url: result.publicUrl })
+    .eq("id", partnerId);
+  if (error) {
+    return { success: false, error: `DB update failed: ${error.message}` };
+  }
+
+  await logAdminAction({
+    actionType: "partner_updated",
+    targetTable: "partners",
+    targetId: partnerId,
+    metadata: { fields: ["cover_image_url"] },
+  });
+
+  await revalidateAfterMedia(partnerId);
+  return { success: true, coverUrl: result.publicUrl };
+}
+
+export async function removePartnerLogo(
+  partnerId: string
+): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin();
+
+  const result = await deletePartnerLogo(partnerId);
+  if (!result.success) {
+    return { success: false, error: result.error };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("partners")
+    .update({ logo_url: null })
+    .eq("id", partnerId);
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  await logAdminAction({
+    actionType: "partner_updated",
+    targetTable: "partners",
+    targetId: partnerId,
+    metadata: { fields: ["logo_url"], action: "removed" },
+  });
+
+  await revalidateAfterMedia(partnerId);
+  return { success: true };
+}
+
+export async function removePartnerCover(
+  partnerId: string
+): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin();
+
+  const result = await deletePartnerCover(partnerId);
+  if (!result.success) {
+    return { success: false, error: result.error };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("partners")
+    .update({ cover_image_url: null })
+    .eq("id", partnerId);
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  await logAdminAction({
+    actionType: "partner_updated",
+    targetTable: "partners",
+    targetId: partnerId,
+    metadata: { fields: ["cover_image_url"], action: "removed" },
+  });
+
+  await revalidateAfterMedia(partnerId);
+  return { success: true };
 }
