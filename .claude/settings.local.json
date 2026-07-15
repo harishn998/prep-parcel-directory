@@ -8,7 +8,11 @@
       "Bash(npm run *)",
       "Bash(PORT=3030 npm run dev)",
       "Bash(echo \"started, pid=$!\")",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(pkill -f \"[n]ext-server\")",
+      "Bash(pkill -f \"[n]ext dev\")",
+      "Bash(echo \"kill done rc=$?\")",
+      "Bash(npx next *)"
     ]
   }
 }

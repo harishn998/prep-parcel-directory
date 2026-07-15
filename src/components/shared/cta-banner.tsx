@@ -46,15 +46,15 @@ export function CtaBanner({
           </p>
         </div>
 
-        <div className="flex shrink-0 items-center gap-3">
-          <Button className="h-12 bg-white px-6 text-[15px] font-medium text-navy transition-colors duration-200 hover:bg-white/90">
+        <div className="flex w-full shrink-0 flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center">
+          <Button className="h-12 w-full justify-center bg-white px-6 text-[15px] font-medium text-navy transition-colors duration-200 hover:bg-white/90 sm:w-auto">
             {primaryLabel}
             <ArrowRight className="ml-1.5 h-4 w-4" strokeWidth={2} />
           </Button>
           {secondaryLabel && (
             <Button
               variant="ghost"
-              className="h-12 px-4 text-[15px] font-medium text-white/80 underline-offset-4 hover:bg-white/10 hover:text-white hover:underline"
+              className="h-12 w-full justify-center border border-white/40 bg-transparent px-6 text-[15px] font-medium text-white transition-all duration-200 hover:border-white/60 hover:bg-white/10 hover:text-white sm:w-auto"
             >
               {secondaryLabel}
             </Button>

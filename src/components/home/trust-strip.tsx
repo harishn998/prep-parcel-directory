@@ -1,15 +1,16 @@
 import Image from "next/image";
 
-// Real customer logos in public/logos/trusted-by/. Intrinsic width/height are
-// passed to next/image to reserve layout space (no CLS); rendered height is
-// capped via CSS (h-5 mobile / md:h-7 desktop) with w-auto to preserve ratio.
+// Real customer logos in public/logos/trusted-by/. Each logo sits in a
+// fixed-size box and is fit with object-contain (via next/image `fill`), so the
+// six containers occupy equal horizontal space regardless of the logo's aspect
+// ratio — different-aspect marks then read as visually balanced.
 const partnerLogos = [
-  { name: "ANS Performance", file: "ans.webp", width: 1600, height: 461 },
-  { name: "Eight Sleep", file: "eight-sleep.webp", width: 700, height: 337 },
-  { name: "Emma", file: "emma.webp", width: 432, height: 100 },
-  { name: "Four Three Seven", file: "four-three-seven.webp", width: 1600, height: 194 },
-  { name: "GNC", file: "gnc.webp", width: 1600, height: 461 },
-  { name: "Nurse Yard", file: "nurse-yard.webp", width: 225, height: 50 },
+  { name: "ANS Performance", file: "ans.webp" },
+  { name: "Eight Sleep", file: "eight-sleep.webp" },
+  { name: "Emma", file: "emma.webp" },
+  { name: "Four Three Seven", file: "four-three-seven.webp" },
+  { name: "GNC", file: "gnc.webp" },
+  { name: "Nurse Yard", file: "nurse-yard.webp" },
 ];
 
 export function TrustStrip() {
@@ -19,15 +20,18 @@ export function TrustStrip() {
         <p className="shrink-0 text-[13px] font-medium uppercase tracking-[0.08em] text-text-3">
           Trusted by leading eCommerce brands
         </p>
-        <div className="grid w-full grid-cols-3 items-center gap-x-8 gap-y-6 md:grid-cols-6">
+        <div className="grid w-full grid-cols-3 place-items-center gap-x-8 gap-y-6 md:grid-cols-6">
           {partnerLogos.map((logo) => (
-            <div key={logo.name} className="flex items-center justify-center">
+            <div
+              key={logo.name}
+              className="relative h-10 w-24 max-w-full md:h-12 md:w-32"
+            >
               <Image
                 src={`/logos/trusted-by/${logo.file}`}
                 alt={logo.name}
-                width={logo.width}
-                height={logo.height}
-                className="h-5 w-auto max-w-full object-contain opacity-[0.55] grayscale transition-all duration-200 hover:opacity-100 hover:grayscale-0 md:h-7"
+                fill
+                sizes="(max-width: 768px) 96px, 128px"
+                className="object-contain opacity-[0.55] grayscale transition-all duration-200 hover:opacity-100 hover:grayscale-0"
               />
             </div>
           ))}

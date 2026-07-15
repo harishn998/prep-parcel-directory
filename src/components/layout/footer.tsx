@@ -84,7 +84,7 @@ const columns: { heading: string; links: FooterLink[] }[] = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-border-soft bg-surface" aria-label="Footer">
+    <footer className="bg-navy" aria-label="Footer">
       <div className="mx-auto max-w-[1280px] px-6 py-16 md:px-8 md:py-20">
         <div className="grid grid-cols-2 gap-10 md:grid-cols-6 md:gap-8">
           {/* Brand col */}
@@ -96,14 +96,14 @@ export function Footer() {
             >
               <PrepParcelLogo size="sm" />
             </Link>
-            <p className="mt-4 max-w-[200px] text-[13px] leading-[1.6] text-text-2">
+            <p className="mt-4 max-w-[200px] text-[13px] leading-[1.6] text-white/70">
               The vetted directory of 3PL warehouses and fulfillment partners.
             </p>
           </div>
 
           {columns.map((col) => (
             <div key={col.heading}>
-              <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-text-3">
+              <h3 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-white/50">
                 {col.heading}
               </h3>
               <ul className="mt-4 space-y-3">
@@ -112,14 +112,14 @@ export function Footer() {
                     {link.href.startsWith("/") ? (
                       <Link
                         href={link.href}
-                        className="text-[14px] text-text-2 transition-colors duration-200 hover:text-navy"
+                        className="text-[14px] text-white/80 transition-colors duration-200 hover:text-white"
                       >
                         {link.label}
                       </Link>
                     ) : (
                       <a
                         href={link.href}
-                        className="text-[14px] text-text-2 transition-colors duration-200 hover:text-navy"
+                        className="text-[14px] text-white/80 transition-colors duration-200 hover:text-white"
                       >
                         {link.label}
                       </a>
@@ -131,10 +131,13 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-16 flex flex-col-reverse items-start justify-between gap-6 border-t border-border-soft pt-8 md:flex-row md:items-center">
-          <p className="text-[13px] text-text-3">
+        <div className="mt-16 flex flex-col-reverse items-start justify-between gap-6 border-t border-white/10 pt-8 md:flex-row md:items-center">
+          <p className="text-[13px] text-white/60">
             &copy; {new Date().getFullYear()} Prep Parcel Partners. An{" "}
-            <span className="font-medium text-text-2">AMZ Prep</span> company.
+            <span className="font-medium text-white underline underline-offset-4 transition-colors duration-200 hover:text-white/80">
+              AMZ Prep
+            </span>{" "}
+            company.
           </p>
           <div className="flex items-center gap-2">
             {[
@@ -146,7 +149,7 @@ export function Footer() {
                 key={label}
                 href="#"
                 aria-label={label}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-border-soft text-text-2 transition-all duration-200 hover:border-blue hover:text-blue"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 text-white/60 transition-all duration-200 hover:border-white/40 hover:text-white"
               >
                 <Icon className="h-4 w-4" />
               </a>

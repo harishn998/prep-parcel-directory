@@ -41,12 +41,12 @@ export function BrowseLocations() {
               href={`/location/${location.slug}`}
               className="lift-card group relative flex flex-col overflow-hidden rounded-2xl border border-border-soft bg-background p-8"
             >
-              {/* Real country flag */}
-              <div className="mb-8 h-16 w-16 overflow-hidden rounded-xl shadow-sm ring-1 ring-black/5">
+              {/* Real country flag — 3:2 container so the flag fills edge to edge */}
+              <div className="mb-8 h-11 w-16 overflow-hidden rounded-lg shadow-sm ring-1 ring-black/5">
                 {Flag ? (
                   <Flag className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-navy text-[20px] font-semibold tracking-[-0.02em] text-white">
+                  <div className="flex h-full w-full items-center justify-center bg-navy text-[18px] font-semibold tracking-[-0.02em] text-white">
                     {location.flag}
                   </div>
                 )}
