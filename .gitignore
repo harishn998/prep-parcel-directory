@@ -41,3 +41,10 @@ yarn-error.log*
 next-env.d.ts
 desktop.ini
 .env.production.local
+
+# Windows folder metadata (WSL2 / Windows Explorer creates these)
+desktop.ini
+**/desktop.ini
+
+# Windows folder metadata (WSL2 / Windows Explorer creates these)
+desktop.ini

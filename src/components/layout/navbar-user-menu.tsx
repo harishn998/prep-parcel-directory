@@ -38,7 +38,7 @@ export function NavbarUserMenu({ profile }: { profile: ProfileRow }) {
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label="Open user menu"
-        className="inline-flex items-center gap-1.5 rounded-full p-0.5 outline-none transition-colors duration-200 hover:bg-secondary focus-visible:ring-2 focus-visible:ring-blue"
+        className="inline-flex items-center gap-1.5 rounded-full p-0.5 outline-none transition-colors duration-200 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-blue"
       >
         {profile.avatar_url ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -53,7 +53,7 @@ export function NavbarUserMenu({ profile }: { profile: ProfileRow }) {
             {initials}
           </span>
         )}
-        <ChevronDown className="h-3.5 w-3.5 text-text-3" strokeWidth={2} />
+        <ChevronDown className="h-3.5 w-3.5 text-white/70" strokeWidth={2} />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">
         <div className="px-3 py-2.5">

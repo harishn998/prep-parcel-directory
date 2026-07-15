@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Package } from "lucide-react";
 import type { ProfileRow } from "@/lib/data/db-types";
+import { PrepParcelLogo } from "@/components/brand/prep-parcel-logo";
 import { NavbarUserMenu } from "./navbar-user-menu";
 
 const navLinks = [
@@ -28,23 +28,17 @@ export function NavbarClient({ profile }: { profile: ProfileRow | null }) {
   return (
     <header
       className={[
-        "sticky top-0 z-50 w-full bg-surface/95 backdrop-blur-sm",
+        "sticky top-0 z-50 w-full bg-navy backdrop-blur-sm",
         "transition-[border-color,box-shadow] duration-200",
         scrolled
-          ? "border-b border-border-soft"
+          ? "border-b border-white/10"
           : "border-b border-transparent",
       ].join(" ")}
       style={{ height: 72 }}
     >
       <div className="mx-auto flex h-full max-w-[1280px] items-center justify-between px-6 md:px-8">
-        <Link
-          href="/"
-          className="flex items-center gap-2 font-semibold text-navy"
-        >
-          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-navy text-white">
-            <Package className="h-4 w-4" strokeWidth={2.5} />
-          </span>
-          <span className="text-[15px] tracking-tight">Prep Parcel</span>
+        <Link href="/" aria-label="Prep Parcel home" className="flex items-center">
+          <PrepParcelLogo size="md" />
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
@@ -52,7 +46,7 @@ export function NavbarClient({ profile }: { profile: ProfileRow | null }) {
             <Link
               key={link.label}
               href={link.href}
-              className="text-[14px] font-medium text-text-2 transition-colors duration-200 hover:text-navy"
+              className="text-[14px] font-medium text-white/80 transition-colors duration-200 hover:text-white"
             >
               {link.label}
             </Link>
@@ -65,7 +59,7 @@ export function NavbarClient({ profile }: { profile: ProfileRow | null }) {
           ) : (
             <Link
               href="/login"
-              className="hidden h-10 items-center rounded-md px-4 text-[14px] font-medium text-text-2 transition-colors duration-200 hover:bg-secondary hover:text-navy md:inline-flex"
+              className="hidden h-10 items-center rounded-md px-4 text-[14px] font-medium text-white/80 transition-colors duration-200 hover:bg-white/10 hover:text-white md:inline-flex"
             >
               Sign In
             </Link>

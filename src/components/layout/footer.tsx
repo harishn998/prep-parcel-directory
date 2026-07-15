@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Package } from "lucide-react";
+import { PrepParcelLogo } from "@/components/brand/prep-parcel-logo";
 
 function LinkedInIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -91,14 +91,10 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-navy"
+              aria-label="Prep Parcel home"
+              className="inline-flex items-center"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-navy text-white">
-                <Package className="h-4 w-4" strokeWidth={2.5} />
-              </span>
-              <span className="text-[15px] font-semibold tracking-tight">
-                Prep Parcel
-              </span>
+              <PrepParcelLogo size="sm" />
             </Link>
             <p className="mt-4 max-w-[200px] text-[13px] leading-[1.6] text-text-2">
               The vetted directory of 3PL warehouses and fulfillment partners.

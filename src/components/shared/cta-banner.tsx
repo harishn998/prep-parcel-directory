@@ -54,7 +54,7 @@ export function CtaBanner({
           {secondaryLabel && (
             <Button
               variant="ghost"
-              className="h-12 px-4 text-[15px] font-medium text-white hover:bg-white/10 hover:text-white"
+              className="h-12 px-4 text-[15px] font-medium text-white/80 underline-offset-4 hover:bg-white/10 hover:text-white hover:underline"
             >
               {secondaryLabel}
             </Button>

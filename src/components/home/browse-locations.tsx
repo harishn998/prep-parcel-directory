@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { US, CA, GB } from "country-flag-icons/react/3x2";
 import { locations } from "@/lib/static-data";
+
+// `location.flag` stores an ISO country code ("US" | "CA" | "GB").
+const flagComponents: Record<string, typeof US> = { US, CA, GB };
 
 export function BrowseLocations() {
   return (
@@ -29,20 +33,23 @@ export function BrowseLocations() {
         </header>
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-          {locations.map((location) => (
+          {locations.map((location) => {
+            const Flag = flagComponents[location.flag];
+            return (
             <Link
               key={location.slug}
               href={`/location/${location.slug}`}
               className="lift-card group relative flex flex-col overflow-hidden rounded-2xl border border-border-soft bg-background p-8"
             >
-              {/* Decorative country mark */}
-              <div className="mb-8 flex h-16 w-16 items-center justify-center rounded-xl bg-navy text-white">
-                <span
-                  className="text-[20px] font-semibold tracking-[-0.02em]"
-                  style={{ letterSpacing: "-0.02em" }}
-                >
-                  {location.flag}
-                </span>
+              {/* Real country flag */}
+              <div className="mb-8 h-16 w-16 overflow-hidden rounded-xl shadow-sm ring-1 ring-black/5">
+                {Flag ? (
+                  <Flag className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-navy text-[20px] font-semibold tracking-[-0.02em] text-white">
+                    {location.flag}
+                  </div>
+                )}
               </div>
 
               <h3 className="text-[24px] font-semibold tracking-[-0.02em] text-text">
@@ -73,7 +80,8 @@ export function BrowseLocations() {
                 />
               </span>
             </Link>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
