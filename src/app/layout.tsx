@@ -4,6 +4,7 @@ import { poppins, jetbrainsMono } from "@/lib/fonts";
 import { getRobotsMetadata } from "@/lib/seo/noindex";
 import { NoindexBanner } from "@/components/layout/noindex-banner";
 import { RouteTransition } from "@/components/layout/route-transition";
+import { RouteProgress } from "@/components/route-progress";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -44,6 +45,7 @@ export default function RootLayout({
         <NuqsAdapter>
           <RouteTransition>{children}</RouteTransition>
         </NuqsAdapter>
+        <RouteProgress />
       </body>
     </html>
   );
