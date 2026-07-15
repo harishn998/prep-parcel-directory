@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { US, CA, GB } from "country-flag-icons/react/3x2";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { CtaBanner } from "@/components/shared/cta-banner";
@@ -13,6 +14,10 @@ import { locations, type Location } from "@/lib/static-data";
 import { getStatePartnerCount } from "@/lib/data/partners";
 
 const SITE_URL = "https://prepparcelpartners.example";
+
+// Reuses the home page's flag treatment (browse-locations.tsx): country-flag
+// -icons 3x2 SVGs keyed by the ISO code stored in `location.flag`.
+const flagComponents: Record<string, typeof US> = { US, CA, GB };
 
 export const metadata: Metadata = (() => {
   const title =
@@ -142,18 +147,25 @@ export default async function LocationIndexPage() {
 
 function CountryCard({ location }: { location: Location }) {
   const topCities = topCitiesForCountry(location.slug);
+  const Flag = flagComponents[location.flag];
   return (
     <Link
       href={`/location/${location.slug}`}
       className="lift-card group relative flex flex-col overflow-hidden rounded-2xl border border-border-soft bg-surface p-8"
     >
-      <div className="mb-8 flex h-16 w-16 items-center justify-center rounded-xl bg-navy text-white">
-        <span
-          className="text-[20px] font-semibold tracking-[-0.02em]"
-          style={{ letterSpacing: "-0.02em" }}
-        >
-          {location.flag}
-        </span>
+      {/* Real country flag — matches the home page tile (3:2, rounded-lg, ring) */}
+      <div className="mb-8 h-11 w-16 overflow-hidden rounded-lg shadow-sm ring-1 ring-black/5">
+        {Flag ? (
+          <Flag
+            title={location.country}
+            aria-label={location.country}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-navy text-[18px] font-semibold tracking-[-0.02em] text-white">
+            {location.flag}
+          </div>
+        )}
       </div>
 
       <h3 className="text-[24px] font-semibold tracking-[-0.02em] text-text">
