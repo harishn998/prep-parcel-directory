@@ -11,8 +11,6 @@ const navLinks = [
   { label: "Directory", href: "/directory" },
   { label: "Categories", href: "/category" },
   { label: "Locations", href: "/location" },
-  { label: "Compare", href: "#" },
-  { label: "Blog", href: "#" },
 ];
 
 export function NavbarClient({ profile }: { profile: ProfileRow | null }) {

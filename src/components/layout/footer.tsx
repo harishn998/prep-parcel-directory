@@ -55,10 +55,8 @@ const columns: { heading: string; links: FooterLink[] }[] = [
     links: [
       { label: "How it works", href: "#" },
       { label: "3PL Buyer's Guide", href: "#" },
-      { label: "Compare partners", href: "#" },
       { label: "Pricing benchmarks", href: "#" },
       { label: "Case studies", href: "#" },
-      { label: "Blog", href: "#" },
     ],
   },
   {
