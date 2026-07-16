@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import type { ProfileRow } from "@/lib/data/db-types";
 import { PrepParcelLogo } from "@/components/brand/prep-parcel-logo";
 import { NavbarUserMenu } from "./navbar-user-menu";
@@ -62,9 +61,12 @@ export function NavbarClient({ profile }: { profile: ProfileRow | null }) {
               Sign In
             </Link>
           )}
-          <Button className="h-10 bg-blue px-4 text-[14px] font-medium text-white shadow-sm transition-colors duration-200 hover:bg-blue-hover">
+          <Link
+            href="/list-your-3pl"
+            className="inline-flex h-10 items-center justify-center rounded-lg bg-blue px-4 text-[14px] font-medium text-white shadow-sm transition-colors duration-200 hover:bg-blue-hover"
+          >
             List Your 3PL
-          </Button>
+          </Link>
         </div>
       </div>
     </header>
