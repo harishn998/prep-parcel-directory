@@ -13,7 +13,10 @@ export type AdminActionType =
   | "warehouse_created"
   | "warehouse_updated"
   | "warehouse_deleted"
-  | "user_role_changed";
+  | "user_role_changed"
+  | "partner_submission_created"
+  | "partner_submission_approved"
+  | "partner_submission_rejected";
 
 export interface LogAdminActionParams {
   actionType: AdminActionType;

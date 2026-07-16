@@ -13,13 +13,14 @@ import {
 } from "@/components/ui/tooltip";
 import { AdminConfirmModal } from "@/components/admin/admin-confirm-modal";
 import { updateUserRole } from "@/lib/actions/admin/users";
+import type { UserRole } from "@/lib/data/db-types";
 
 interface Props {
   user: {
     id: string;
     email: string;
     full_name: string | null;
-    role: "user" | "admin";
+    role: UserRole;
   };
   selfId: string;
 }

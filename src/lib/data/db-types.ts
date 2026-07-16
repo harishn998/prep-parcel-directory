@@ -65,6 +65,9 @@ export interface PartnerRow {
   profile_score: number | null;
   plan: string | null;
 
+  // Ownership (0008_partner_listings.sql). Null = admin-owned / unclaimed.
+  owner_id: string | null;
+
   meta_title: string | null;
   meta_description: string | null;
 
@@ -100,7 +103,7 @@ export interface WarehouseRow {
   created_at: string;
 }
 
-export type UserRole = "user" | "admin";
+export type UserRole = "user" | "admin" | "partner";
 
 export interface ProfileRow {
   id: string;
@@ -108,6 +111,24 @@ export interface ProfileRow {
   full_name: string | null;
   avatar_url: string | null;
   role: UserRole;
+  created_at: string;
+  updated_at: string;
+}
+
+// partner_submissions (0008_partner_listings.sql). `type`/`status` are text
+// columns with CHECK constraints, not pg enums — modeled as string unions.
+export type PartnerSubmissionType = "new" | "claim";
+export type PartnerSubmissionStatus = "pending" | "approved" | "rejected";
+
+export interface PartnerSubmissionRow {
+  id: string;
+  submitted_by: string;
+  type: PartnerSubmissionType;
+  target_partner_id: string | null;
+  payload: Json;
+  status: PartnerSubmissionStatus;
+  reviewed_by: string | null;
+  review_note: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -134,6 +155,11 @@ export interface Database {
         Row: ProfileRow;
         Insert: Partial<ProfileRow>;
         Update: Partial<ProfileRow>;
+      };
+      partner_submissions: {
+        Row: PartnerSubmissionRow;
+        Insert: Partial<PartnerSubmissionRow>;
+        Update: Partial<PartnerSubmissionRow>;
       };
     };
     Enums: {

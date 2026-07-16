@@ -12,6 +12,9 @@ import {
   Trash2,
   UserCog,
   Activity,
+  Inbox,
+  Check,
+  X,
 } from "lucide-react";
 
 import { relativeTime } from "@/lib/utils";
@@ -30,6 +33,9 @@ const ICON_MAP: Record<AdminActionType, typeof Activity> = {
   warehouse_updated: Warehouse,
   warehouse_deleted: Trash2,
   user_role_changed: UserCog,
+  partner_submission_created: Inbox,
+  partner_submission_approved: Check,
+  partner_submission_rejected: X,
 };
 
 function actionDescription(
@@ -66,6 +72,12 @@ function actionDescription(
       return "Deleted warehouse";
     case "user_role_changed":
       return `Changed role of ${m.userEmail ?? "user"} (${m.from} → ${m.to})`;
+    case "partner_submission_created":
+      return `New listing submission${m.name ? ` — ${m.name}` : ""}`;
+    case "partner_submission_approved":
+      return `Approved listing submission${m.name ? ` — ${m.name}` : ""}`;
+    case "partner_submission_rejected":
+      return `Rejected listing submission${m.name ? ` — ${m.name}` : ""}`;
   }
 }
 

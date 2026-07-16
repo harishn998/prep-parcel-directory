@@ -15,7 +15,7 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
-import type { ProfileRow } from "@/lib/data/db-types";
+import type { ProfileRow, UserRole } from "@/lib/data/db-types";
 
 export const metadata = { title: "Users" };
 
@@ -195,11 +195,18 @@ export default async function AdminUsersPage({
   );
 }
 
-function RoleBadge({ role }: { role: "user" | "admin" }) {
+function RoleBadge({ role }: { role: UserRole }) {
   if (role === "admin") {
     return (
       <span className="inline-flex h-5 items-center rounded-full bg-navy px-2 text-[11px] font-medium uppercase tracking-wide text-white">
         Admin
+      </span>
+    );
+  }
+  if (role === "partner") {
+    return (
+      <span className="inline-flex h-5 items-center rounded-full bg-blue/10 px-2 text-[11px] font-medium uppercase tracking-wide text-blue ring-1 ring-blue/20">
+        Partner
       </span>
     );
   }
