@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { AdminFormField } from "@/components/admin/admin-form-field";
 import { createPartner } from "@/lib/actions/admin/partners";
 import type { PartnerFormData } from "@/lib/validation/partner";
+import type { ActionResult } from "@/lib/actions/admin/_result";
 
 const COUNTRY_CODE_MAP: Record<
   PartnerFormData["country"],
@@ -55,9 +56,28 @@ const EMPTY: PartnerFormData = {
   metaDescription: null,
 };
 
-export function PartnerCreateForm() {
+interface PartnerCreateFormProps {
+  /** Prefill values merged over the empty form (e.g. from an approved submission). */
+  defaults?: Partial<PartnerFormData>;
+  /** Override the submit action. Defaults to createPartner. Must return the new
+   * partner's id + slug so we can route to its admin page. */
+  submitAction?: (
+    form: PartnerFormData
+  ) => Promise<ActionResult<{ id: string; slug: string }>>;
+  submitLabel?: string;
+  submittingLabel?: string;
+  successMessage?: string;
+}
+
+export function PartnerCreateForm({
+  defaults,
+  submitAction = createPartner,
+  submitLabel = "Create partner",
+  submittingLabel = "Creating…",
+  successMessage = "Partner created",
+}: PartnerCreateFormProps = {}) {
   const router = useRouter();
-  const [form, setForm] = useState<PartnerFormData>(EMPTY);
+  const [form, setForm] = useState<PartnerFormData>({ ...EMPTY, ...defaults });
   const [busy, setBusy] = useState(false);
 
   function update<K extends keyof PartnerFormData>(
@@ -70,13 +90,13 @@ export function PartnerCreateForm() {
   async function onSubmit() {
     if (busy) return;
     setBusy(true);
-    const r = await createPartner(form);
+    const r = await submitAction(form);
     setBusy(false);
     if (r.success) {
-      toast.success("Partner created");
+      toast.success(successMessage);
       router.push(`/admin/partners/${r.data.id}`);
     } else {
-      toast.error(r.error ?? "Could not create partner");
+      toast.error(r.error ?? "Could not save partner");
     }
   }
 
@@ -177,7 +197,7 @@ export function PartnerCreateForm() {
           disabled={busy}
           className="bg-blue text-white hover:bg-blue-hover"
         >
-          {busy ? "Creating…" : "Create partner"}
+          {busy ? submittingLabel : submitLabel}
         </Button>
       </div>
     </div>

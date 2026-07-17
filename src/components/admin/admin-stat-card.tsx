@@ -1,4 +1,5 @@
 import * as React from "react";
+import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 
@@ -8,6 +9,8 @@ interface AdminStatCardProps {
   detail?: string;
   icon?: React.ReactNode;
   className?: string;
+  /** When set, the whole card becomes a link. */
+  href?: string;
 }
 
 export function AdminStatCard({
@@ -16,11 +19,16 @@ export function AdminStatCard({
   detail,
   icon,
   className,
+  href,
 }: AdminStatCardProps) {
+  const Root = href ? Link : "div";
   return (
-    <div
+    <Root
+      // @ts-expect-error - href only applies when Root is Link
+      href={href}
       className={cn(
-        "rounded-xl border border-border bg-surface p-6 transition-shadow hover:shadow-sm",
+        "block rounded-xl border border-border bg-surface p-6 transition-shadow hover:shadow-sm",
+        href && "hover:border-blue/40",
         className
       )}
     >
@@ -46,6 +54,6 @@ export function AdminStatCard({
       {detail ? (
         <div className="mt-2 text-[13px] text-text-2">{detail}</div>
       ) : null}
-    </div>
+    </Root>
   );
 }

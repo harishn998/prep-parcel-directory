@@ -6,6 +6,7 @@ import {
   Home,
   Building2,
   Users,
+  Inbox,
   Settings,
   ChevronUp,
   ExternalLink,
@@ -33,6 +34,7 @@ const SECTIONS: { label: string; items: NavItem[] }[] = [
     items: [
       { href: "/admin", label: "Overview", icon: Home, exact: true },
       { href: "/admin/partners", label: "Partners", icon: Building2 },
+      { href: "/admin/submissions", label: "Submissions", icon: Inbox },
       { href: "/admin/users", label: "Users", icon: Users },
     ],
   },

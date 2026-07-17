@@ -41,3 +41,13 @@ export const listingSubmissionSchema = z.object({
 });
 
 export type ListingSubmissionInput = z.infer<typeof listingSubmissionSchema>;
+
+// Admin reject — a note is required so the submitter has a reason on record.
+export const rejectSubmissionSchema = z.object({
+  note: z
+    .string()
+    .trim()
+    .min(4, "Add a short reason for the rejection.")
+    .max(1000, "Keep the note under 1000 characters."),
+});
+export type RejectSubmissionInput = z.infer<typeof rejectSubmissionSchema>;

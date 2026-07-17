@@ -71,6 +71,15 @@ async function loadUserStats(): Promise<UserStats> {
   return { total: rows.length, admins, users: rows.length - admins };
 }
 
+async function loadPendingSubmissionCount(): Promise<number> {
+  const supabase = await createSupabaseServerClient();
+  const { count } = await supabase
+    .from("partner_submissions")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "pending");
+  return count ?? 0;
+}
+
 async function loadReviewStats(): Promise<ReviewStats> {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase.from("reviews").select("rating");
@@ -132,12 +141,14 @@ export default async function AdminOverviewPage() {
   // Layout already redirects when this is null. Safe to assert.
   const greeting = firstName(profile!);
 
-  const [partnerStats, userStats, reviewStats, activity] = await Promise.all([
-    loadPartnerStats(),
-    loadUserStats(),
-    loadReviewStats(),
-    loadRecentActivity(),
-  ]);
+  const [partnerStats, userStats, reviewStats, activity, pendingSubmissions] =
+    await Promise.all([
+      loadPartnerStats(),
+      loadUserStats(),
+      loadReviewStats(),
+      loadRecentActivity(),
+      loadPendingSubmissionCount(),
+    ]);
 
   return (
     <div className="mx-auto max-w-[1200px] px-6 py-8">
@@ -195,9 +206,12 @@ export default async function AdminOverviewPage() {
         />
         <AdminStatCard
           label="Pending tasks"
-          value={0}
-          detail="0 reviews to moderate · 0 claims to verify"
+          value={pendingSubmissions}
+          detail={`${pendingSubmissions} ${
+            pendingSubmissions === 1 ? "listing" : "listings"
+          } to review · 0 reviews to moderate`}
           icon={<ListTodo className="h-4 w-4" strokeWidth={2} />}
+          href="/admin/submissions"
         />
       </div>
 

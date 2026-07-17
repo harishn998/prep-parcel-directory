@@ -65,6 +65,9 @@ export default async function PartnerEditPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  // RLS client + requireAdmin() gate (admin layout). The "Admins can read all
+  // partners" policy (0011) lets admins see hidden (is_active=false) partners,
+  // e.g. a listing just created by approving a submission.
   const supabase = await createSupabaseServerClient();
 
   const [partnerRes, warehousesRes] = await Promise.all([
