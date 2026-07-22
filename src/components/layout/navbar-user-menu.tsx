@@ -23,6 +23,7 @@ export function NavbarUserMenu({ profile }: { profile: ProfileRow }) {
   const initials = initialsFor(profile);
   const displayName = profile.full_name?.trim() || profile.email;
   const isAdmin = profile.role === "admin";
+  const isPartner = profile.role === "partner";
 
   async function onSignOut() {
     await fetch("/auth/signout", {
@@ -65,10 +66,14 @@ export function NavbarUserMenu({ profile }: { profile: ProfileRow }) {
           </div>
         </div>
         <DropdownMenuSeparator />
-        {/* TODO Phase 1E-2: build /account UI */}
         <DropdownMenuItem
           render={<Link href="/account">Account settings</Link>}
         />
+        {isPartner && (
+          <DropdownMenuItem
+            render={<Link href="/partner">My listing</Link>}
+          />
+        )}
         {isAdmin && (
           <DropdownMenuItem
             render={<Link href="/admin">Admin dashboard</Link>}
