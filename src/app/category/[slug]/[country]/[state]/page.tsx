@@ -44,7 +44,31 @@ export async function generateStaticParams() {
         (await getPartnersByCategoryAndState(c.slug, c.state)).length > 0,
     }))
   );
-  return checks.filter((c) => c.hasPartners).map(({ slug, country, state }) => ({ slug, country, state }));
+
+  // Resilience guard: only emit params that fully resolve in the taxonomy AND
+  // whose country↔state align. Candidates here are taxonomy-sourced, so this is
+  // a belt-and-suspenders check that future-proofs against taxonomy/data drift;
+  // anything unmappable is skipped-and-logged, never allowed to crash the build.
+  const skipped: string[] = [];
+  const params = checks
+    .filter((c) => c.hasPartners)
+    .filter((c) => {
+      const ok =
+        !!getCategoryBySlug(c.slug) &&
+        !!getCountryBySlug(c.country) &&
+        !!getStateBySlug(c.state) &&
+        getCountryForState(c.state)?.slug === c.country;
+      if (!ok) skipped.push(`${c.slug}/${c.country}/${c.state}`);
+      return ok;
+    })
+    .map(({ slug, country, state }) => ({ slug, country, state }));
+
+  if (skipped.length > 0) {
+    console.warn(
+      `[category/[slug]/[country]/[state]] skipped ${skipped.length} unmappable combo(s): ${skipped.join(", ")}`
+    );
+  }
+  return params;
 }
 
 export async function generateMetadata({

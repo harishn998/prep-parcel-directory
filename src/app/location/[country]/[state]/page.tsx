@@ -13,6 +13,7 @@ import {
   CATEGORIES,
   getCountryBySlug,
   getStateBySlug,
+  getCountryForState,
 } from "@/lib/taxonomy";
 import {
   getPartnersByState,
@@ -34,7 +35,28 @@ export async function generateStaticParams() {
       hasPartners: (await getPartnersByState(c.state)).length > 0,
     }))
   );
-  return checks.filter((c) => c.hasPartners).map(({ country, state }) => ({ country, state }));
+
+  // Resilience guard: skip-and-log any param that doesn't resolve in the
+  // taxonomy or whose country↔state don't align (future-proofs the build).
+  const skipped: string[] = [];
+  const params = checks
+    .filter((c) => c.hasPartners)
+    .filter((c) => {
+      const ok =
+        !!getCountryBySlug(c.country) &&
+        !!getStateBySlug(c.state) &&
+        getCountryForState(c.state)?.slug === c.country;
+      if (!ok) skipped.push(`${c.country}/${c.state}`);
+      return ok;
+    })
+    .map(({ country, state }) => ({ country, state }));
+
+  if (skipped.length > 0) {
+    console.warn(
+      `[location/[country]/[state]] skipped ${skipped.length} unmappable param(s): ${skipped.join(", ")}`
+    );
+  }
+  return params;
 }
 
 export async function generateMetadata({

@@ -38,9 +38,29 @@ export async function generateStaticParams() {
       hasPartners: (await getPartnersByCity(c.city)).length > 0,
     }))
   );
-  return checks
+
+  // Resilience guard: only emit a city param that fully resolves in the
+  // taxonomy AND whose (country, state, city) all align. Skip-and-log the rest.
+  const skipped: string[] = [];
+  const params = checks
     .filter((c) => c.hasPartners)
+    .filter((c) => {
+      const resolved = getCityBySlug(c.city);
+      const ok =
+        !!resolved &&
+        resolved.country.slug === c.country &&
+        resolved.state.slug === c.state;
+      if (!ok) skipped.push(`${c.country}/${c.state}/${c.city}`);
+      return ok;
+    })
     .map(({ country, state, city }) => ({ country, state, city }));
+
+  if (skipped.length > 0) {
+    console.warn(
+      `[location/[country]/[state]/[city]] skipped ${skipped.length} unmappable param(s): ${skipped.join(", ")}`
+    );
+  }
+  return params;
 }
 
 export async function generateMetadata({

@@ -82,8 +82,19 @@ export default async function CategoryPage({
       ? matched.reduce((sum, p) => sum + p.rating, 0) / matched.length
       : 0;
 
-  // Top 5 states by partner count (only states that exist in taxonomy)
+  // Top 5 states by partner count (only states that exist in taxonomy).
+  // Partner `servedStates` are free-form and may contain values outside the
+  // taxonomy (e.g. test/real submissions with "illinois", "ontario",
+  // "england"). Those are SKIPPED here, never dereferenced — build resilience,
+  // not a data-specific hack. We log the skipped values so bad data is visible.
   const validStates = new Set(allStates().map((s) => s.slug));
+  const allServedStates = Array.from(stateCounts.keys());
+  const unmappableStates = allServedStates.filter((s) => !validStates.has(s));
+  if (unmappableStates.length > 0) {
+    console.warn(
+      `[category/${slug}] skipping ${unmappableStates.length} served-state value(s) not in taxonomy: ${unmappableStates.join(", ")}`
+    );
+  }
   const stateEntries = Array.from(stateCounts.entries()).filter(
     ([slug]) => validStates.has(slug)
   );
@@ -99,14 +110,18 @@ export default async function CategoryPage({
     .filter((x) => x.hasPartners)
     .sort((a, b) => b.count - a.count)
     .slice(0, 6)
-    .map(({ slug: stateSlug, count }) => {
-      const state = allStates().find((s) => s.slug === stateSlug)!;
-      const country = getCountryForState(stateSlug)!;
-      return {
-        name: `${category.name} in ${state.name}`,
-        href: `/category/${category.slug}/${country.slug}/${state.slug}`,
-        meta: `${count} partner${count === 1 ? "" : "s"}`,
-      };
+    .flatMap(({ slug: stateSlug, count }) => {
+      // Never non-null-assert: skip any state that doesn't fully resolve.
+      const state = allStates().find((s) => s.slug === stateSlug);
+      const country = getCountryForState(stateSlug);
+      if (!state || !country) return [];
+      return [
+        {
+          name: `${category.name} in ${state.name}`,
+          href: `/category/${category.slug}/${country.slug}/${state.slug}`,
+          meta: `${count} partner${count === 1 ? "" : "s"}`,
+        },
+      ];
     });
 
   const lockedDisplayName = CATEGORY_SLUG_TO_DISPLAY_NAME[category.slug];

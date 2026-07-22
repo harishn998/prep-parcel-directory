@@ -48,33 +48,99 @@ function sortPrimaryFirst(rows: WarehouseRow[]): WarehouseRow[] {
   });
 }
 
+// Backoff before retry attempts 2 and 3. Total: 3 attempts (immediate, +300ms,
+// +800ms). Build-time page-data collection has hit a transient DB blip that took
+// down a whole prod deploy on a single failed read; a bounded retry absorbs a
+// momentary blip so the build self-heals. It NEVER swallows a total failure into
+// an empty result — that would ship an empty directory — it throws loudly.
+const READ_RETRY_BACKOFFS_MS = [300, 800];
+
+function supabaseHost(): string {
+  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  try {
+    return rawUrl ? new URL(rawUrl).host : "(empty)";
+  } catch {
+    return "(unparseable)";
+  }
+}
+
+// Format a PostgrestError-ish object without leaking secrets (code/message/
+// details/hint only; never the anon key).
+function describeError(error: unknown): string {
+  const e = error as {
+    code?: string;
+    message?: string;
+    details?: string | null;
+    hint?: string | null;
+  } | null;
+  const parts = [
+    `code=${e?.code ?? "?"}`,
+    `message=${JSON.stringify(e?.message ?? "")}`,
+  ];
+  if (e?.details) parts.push(`details=${JSON.stringify(e.details)}`);
+  if (e?.hint) parts.push(`hint=${JSON.stringify(e.hint)}`);
+  return parts.join(" ");
+}
+
 export const getAllPartners = cache(async (): Promise<Partner[]> => {
   const supabase = createPublicClient();
-  const [partnersRes, reviewsRes, warehousesRes] = await Promise.all([
-    supabase.from("partners").select("*").eq("is_active", true),
-    supabase.from("reviews").select("*"),
-    supabase.from("warehouses").select("*"),
-  ]);
-  if (partnersRes.error) throw partnersRes.error;
-  if (reviewsRes.error) throw reviewsRes.error;
-  if (warehousesRes.error) throw warehousesRes.error;
+  const maxAttempts = READ_RETRY_BACKOFFS_MS.length + 1;
 
-  const reviewsByPartner = groupBy(
-    (reviewsRes.data ?? []) as ReviewRow[],
-    (r) => r.partner_id
-  );
-  const whByPartner = groupBy(
-    (warehousesRes.data ?? []) as WarehouseRow[],
-    (w) => w.partner_id
-  );
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const [partnersRes, reviewsRes, warehousesRes] = await Promise.all([
+      supabase.from("partners").select("*").eq("is_active", true),
+      supabase.from("reviews").select("*"),
+      supabase.from("warehouses").select("*"),
+    ]);
 
-  return (partnersRes.data ?? []).map((p) =>
-    mapPartnerRow(
-      p,
-      reviewsByPartner.get(p.id) ?? [],
-      sortPrimaryFirst(whByPartner.get(p.id) ?? [])
-    )
-  );
+    const failures: { table: string; error: unknown }[] = [];
+    if (partnersRes.error)
+      failures.push({ table: "partners", error: partnersRes.error });
+    if (reviewsRes.error)
+      failures.push({ table: "reviews", error: reviewsRes.error });
+    if (warehousesRes.error)
+      failures.push({ table: "warehouses", error: warehousesRes.error });
+
+    if (failures.length === 0) {
+      const reviewsByPartner = groupBy(
+        (reviewsRes.data ?? []) as ReviewRow[],
+        (r) => r.partner_id
+      );
+      const whByPartner = groupBy(
+        (warehousesRes.data ?? []) as WarehouseRow[],
+        (w) => w.partner_id
+      );
+      return (partnersRes.data ?? []).map((p) =>
+        mapPartnerRow(
+          p,
+          reviewsByPartner.get(p.id) ?? [],
+          sortPrimaryFirst(whByPartner.get(p.id) ?? [])
+        )
+      );
+    }
+
+    // Retry the momentary blip before giving up.
+    if (attempt < maxAttempts) {
+      await new Promise((res) =>
+        setTimeout(res, READ_RETRY_BACKOFFS_MS[attempt - 1])
+      );
+      continue;
+    }
+
+    // All attempts exhausted — NEVER re-throw the raw PostgrestError (opaque
+    // `{message:''}`) and NEVER return []. Throw a diagnosable, secret-free error.
+    const detail = failures
+      .map((f) => `[${f.table}] ${describeError(f.error)}`)
+      .join("; ");
+    throw new Error(
+      `getAllPartners: Supabase read failed after ${maxAttempts} attempt(s) ` +
+        `against host ${supabaseHost()} — ${detail}`
+    );
+  }
+
+  // Unreachable: the loop either returns on success or throws on the final
+  // attempt. Present only to satisfy control-flow analysis.
+  throw new Error("getAllPartners: exhausted read retries unexpectedly");
 });
 
 export async function getAllPartnerSlugs(): Promise<string[]> {
