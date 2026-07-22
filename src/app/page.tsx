@@ -26,6 +26,7 @@ export default function Home() {
           heading="List your 3PL on the largest verified directory."
           description="Get in front of qualified eCommerce brands looking for their next fulfillment partner. Free to list, paid plans for premium placement."
           primaryLabel="List Your 3PL"
+          primaryHref="/list-your-3pl"
           secondaryLabel="Talk to us"
         />
       </main>

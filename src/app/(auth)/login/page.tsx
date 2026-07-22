@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Package } from "lucide-react";
+import { PrepParcelLogo } from "@/components/brand/prep-parcel-logo";
 import { MagicLinkForm } from "./_components/magic-link-form";
 import { GoogleSignInButton } from "./_components/google-sign-in-button";
 
@@ -28,14 +28,8 @@ export default async function LoginPage({
       className="w-full max-w-[440px] rounded-2xl border border-border-soft bg-surface p-10 shadow-sm"
       style={{ borderRadius: 16 }}
     >
-      <Link
-        href="/"
-        className="mb-8 inline-flex items-center gap-2 font-semibold text-navy"
-      >
-        <span className="flex h-8 w-8 items-center justify-center rounded-md bg-navy text-white">
-          <Package className="h-4 w-4" strokeWidth={2.5} />
-        </span>
-        <span className="text-[15px] tracking-tight">Prep Parcel</span>
+      <Link href="/" aria-label="Prep Parcel home" className="mb-8 inline-flex">
+        <PrepParcelLogo size="sm" tone="dark" />
       </Link>
 
       <h1 className="text-[28px] font-semibold leading-[1.1] tracking-[-0.02em] text-text">

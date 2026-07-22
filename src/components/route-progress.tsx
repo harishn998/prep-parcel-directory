@@ -50,15 +50,25 @@ export function RouteProgress() {
     failsafe.current = setTimeout(() => done(), FAILSAFE_MS);
   }, [trickle, done]);
 
-  // START: only for navigations that change the pathname
+  // START: only for navigations that change the pathname.
+  //
+  // start() calls setState. nuqs also patches history.pushState and invokes it
+  // during React's insertion-effect phase (useInsertionEffect), where scheduling
+  // updates is forbidden ("useInsertionEffect must not schedule updates"). So we
+  // NEVER call start() synchronously here — we defer it with queueMicrotask so
+  // the setState always lands after the insertion-effect phase. The patched
+  // pushState still calls the original synchronously and returns its result;
+  // only the start() side-effect is deferred.
   useEffect(() => {
+    const deferStart = () => queueMicrotask(() => start());
+
     const origPush = window.history.pushState;
     window.history.pushState = function (...args: Parameters<typeof origPush>) {
       try {
         const url = args[2];
         if (url) {
           const next = new URL(url.toString(), window.location.href);
-          if (next.pathname !== window.location.pathname) start();
+          if (next.pathname !== window.location.pathname) deferStart();
         }
       } catch {}
       return origPush.apply(this, args);
@@ -75,11 +85,11 @@ export function RouteProgress() {
         const url = new URL(a.href, window.location.href);
         if (url.origin !== window.location.origin) return;
         if (url.pathname === window.location.pathname) return; // same page / filter change
-        start();
+        deferStart();
       } catch {}
     };
     document.addEventListener('click', onClick, true);
-    const onPop = () => start();
+    const onPop = () => deferStart();
     window.addEventListener('popstate', onPop);
 
     return () => {

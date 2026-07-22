@@ -34,6 +34,21 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Auth gate at the edge (mirrors /admin above). The page's server component
+  // also calls redirect() as a backstop — but doing it here means a signed-out
+  // *client-side* navigation is redirected before any route renders, so the
+  // shared route-transition wrapper never mounts a redirecting route mid-
+  // transition (which crashed with a React hook-count mismatch and a blank
+  // page on the first click; a hard refresh worked because it had no client
+  // transition).
+  if (pathname === "/list-your-3pl" && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.search = "";
+    url.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(url);
+  }
+
   if (isSiteNoindex()) {
     response.headers.set(
       "X-Robots-Tag",

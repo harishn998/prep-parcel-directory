@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
@@ -6,7 +7,11 @@ type CtaBannerProps = {
   heading: string;
   description: string;
   primaryLabel: string;
+  // When set, the primary/secondary buttons render as Next <Link>s. Left unset,
+  // they stay plain buttons (e.g. the "Get matched" banners have no target yet).
+  primaryHref?: string;
   secondaryLabel?: string;
+  secondaryHref?: string;
   ariaLabel?: string;
 };
 
@@ -15,7 +20,9 @@ export function CtaBanner({
   heading,
   description,
   primaryLabel,
+  primaryHref,
   secondaryLabel,
+  secondaryHref,
   ariaLabel,
 }: CtaBannerProps) {
   return (
@@ -47,7 +54,12 @@ export function CtaBanner({
         </div>
 
         <div className="flex w-full shrink-0 flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center">
-          <Button className="h-12 w-full justify-center bg-white px-6 text-[15px] font-medium text-navy transition-colors duration-200 hover:bg-white/90 sm:w-auto">
+          <Button
+            className="h-12 w-full justify-center bg-white px-6 text-[15px] font-medium text-navy transition-colors duration-200 hover:bg-white/90 sm:w-auto"
+            {...(primaryHref
+              ? { render: <Link href={primaryHref} />, nativeButton: false }
+              : {})}
+          >
             {primaryLabel}
             <ArrowRight className="ml-1.5 h-4 w-4" strokeWidth={2} />
           </Button>
@@ -55,6 +67,9 @@ export function CtaBanner({
             <Button
               variant="ghost"
               className="h-12 w-full justify-center border border-white/40 bg-transparent px-6 text-[15px] font-medium text-white transition-all duration-200 hover:border-white/60 hover:bg-white/10 hover:text-white sm:w-auto"
+              {...(secondaryHref
+                ? { render: <Link href={secondaryHref} />, nativeButton: false }
+                : {})}
             >
               {secondaryLabel}
             </Button>
