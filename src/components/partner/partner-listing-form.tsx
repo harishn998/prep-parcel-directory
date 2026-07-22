@@ -12,7 +12,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTab, TabsPanel } from "@/components/ui/tabs";
 import { AdminFormField } from "@/components/admin/admin-form-field";
 import { AdminTagInput } from "@/components/admin/admin-tag-input";
+import { LogoUploader } from "@/components/admin/media-upload/logo-uploader";
+import { CoverUploader } from "@/components/admin/media-upload/cover-uploader";
+import {
+  WarehouseManager,
+  type WarehouseEntry,
+} from "@/components/shared/warehouse-manager";
 import { updateOwnListing } from "@/lib/actions/partner/listing";
+import {
+  updateOwnListingLogo,
+  removeOwnListingLogo,
+  updateOwnListingCover,
+  removeOwnListingCover,
+} from "@/lib/actions/partner/media";
+import {
+  createOwnWarehouse,
+  updateOwnWarehouse,
+  deleteOwnWarehouse,
+} from "@/lib/actions/partner/warehouses";
 import type { PartnerFormData } from "@/lib/validation/partner";
 
 // The partner may edit everything EXCEPT the protected/admin-managed fields.
@@ -31,18 +48,29 @@ const COUNTRY_CODE_MAP: Record<
   UK: "GB",
 };
 
-type Tab = "basics" | "business" | "tags" | "contact" | "seo";
+type Tab = "media" | "basics" | "business" | "tags" | "contact" | "seo" | "warehouses";
 
 interface Props {
   partnerId: string;
   slug: string; // for the public-profile link only; NOT editable here
   isActive: boolean;
   initial: PartnerListingFormData;
+  currentLogoUrl: string | null;
+  currentCoverUrl: string | null;
+  warehouses: WarehouseEntry[];
 }
 
-export function PartnerListingForm({ partnerId, slug, isActive, initial }: Props) {
+export function PartnerListingForm({
+  partnerId,
+  slug,
+  isActive,
+  initial,
+  currentLogoUrl,
+  currentCoverUrl,
+  warehouses,
+}: Props) {
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>("basics");
+  const [tab, setTab] = useState<Tab>("media");
   const [form, setForm] = useState<PartnerListingFormData>(initial);
   const [saving, setSaving] = useState(false);
 
@@ -87,12 +115,51 @@ export function PartnerListingForm({ partnerId, slug, isActive, initial }: Props
     <div>
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
         <TabsList>
+          <TabsTab value="media">Media</TabsTab>
           <TabsTab value="basics">Basics</TabsTab>
           <TabsTab value="business">Business</TabsTab>
           <TabsTab value="tags">Services &amp; tags</TabsTab>
           <TabsTab value="contact">Contact</TabsTab>
           <TabsTab value="seo">SEO</TabsTab>
+          <TabsTab value="warehouses">Warehouses</TabsTab>
         </TabsList>
+
+        {/* MEDIA — owner-scoped upload actions (partner-media owner RLS, 0013). */}
+        <TabsPanel value="media">
+          <div className="grid gap-8 rounded-xl border border-border bg-surface p-6">
+            <section className="flex flex-col gap-3">
+              <div>
+                <h3 className="text-[15px] font-semibold text-text">Logo</h3>
+                <p className="mt-1 text-[13px] text-text-2">
+                  Square image shown on directory cards and your profile. PNG,
+                  JPG, or WebP, up to 2 MB.
+                </p>
+              </div>
+              <LogoUploader
+                partnerId={partnerId}
+                currentUrl={currentLogoUrl}
+                uploadAction={updateOwnListingLogo}
+                removeAction={removeOwnListingLogo}
+              />
+            </section>
+            <section className="flex flex-col gap-3">
+              <div>
+                <h3 className="text-[15px] font-semibold text-text">
+                  Cover image
+                </h3>
+                <p className="mt-1 text-[13px] text-text-2">
+                  Wide banner at the top of your profile. 3:1 aspect, up to 5 MB.
+                </p>
+              </div>
+              <CoverUploader
+                partnerId={partnerId}
+                currentUrl={currentCoverUrl}
+                uploadAction={updateOwnListingCover}
+                removeAction={removeOwnListingCover}
+              />
+            </section>
+          </div>
+        </TabsPanel>
 
         {/* BASICS — note: NO slug field (protected). */}
         <TabsPanel value="basics">
@@ -401,6 +468,17 @@ export function PartnerListingForm({ partnerId, slug, isActive, initial }: Props
               />
             </AdminFormField>
           </div>
+        </TabsPanel>
+
+        {/* WAREHOUSES — owner-scoped CRUD (warehouse owner RLS, 0013). */}
+        <TabsPanel value="warehouses">
+          <WarehouseManager
+            partnerId={partnerId}
+            initial={warehouses}
+            createAction={createOwnWarehouse}
+            updateAction={updateOwnWarehouse}
+            deleteAction={deleteOwnWarehouse}
+          />
         </TabsPanel>
       </Tabs>
 

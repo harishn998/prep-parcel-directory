@@ -12,7 +12,8 @@ import {
   PartnerListingForm,
   type PartnerListingFormData,
 } from "@/components/partner/partner-listing-form";
-import type { PartnerRow } from "@/lib/data/db-types";
+import type { PartnerRow, WarehouseRow } from "@/lib/data/db-types";
+import type { WarehouseEntry } from "@/components/shared/warehouse-manager";
 
 export const metadata: Metadata = {
   title: "My listing — Prep Parcel Partners",
@@ -86,6 +87,27 @@ export default async function PartnerListingPage() {
     .limit(1)
     .maybeSingle<PartnerRow>();
 
+  // Warehouses of the owned listing — readable even while the parent is hidden
+  // via the owner-SELECT warehouses policy (0013).
+  let warehouses: WarehouseEntry[] = [];
+  if (partner) {
+    const { data: warehouseRows } = await supabase
+      .from("warehouses")
+      .select("*")
+      .eq("partner_id", partner.id)
+      .order("is_primary", { ascending: false })
+      .order("city", { ascending: true });
+    warehouses = ((warehouseRows as WarehouseRow[] | null) ?? []).map((w) => ({
+      id: w.id,
+      city: w.city,
+      address: w.address,
+      sqft: w.sqft,
+      hours: w.hours,
+      services: w.services ?? [],
+      is_primary: w.is_primary ?? false,
+    }));
+  }
+
   return (
     <>
       <Navbar />
@@ -125,6 +147,9 @@ export default async function PartnerListingPage() {
                 slug={partner.slug}
                 isActive={partner.is_active ?? false}
                 initial={rowToFormData(partner)}
+                currentLogoUrl={partner.logo_url}
+                currentCoverUrl={partner.cover_image_url}
+                warehouses={warehouses}
               />
             </div>
           ) : (

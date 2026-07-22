@@ -15,12 +15,26 @@ const ACCEPT = "image/png,image/jpeg,image/webp";
 const ALLOWED = new Set(["image/png", "image/jpeg", "image/webp"]);
 const MAX_BYTES = 2 * 1024 * 1024;
 
+type LogoUploadAction = (
+  partnerId: string,
+  formData: FormData
+) => Promise<{ success: boolean; logoUrl?: string; error?: string }>;
+type LogoRemoveAction = (
+  partnerId: string
+) => Promise<{ success: boolean; error?: string }>;
+
 export function LogoUploader({
   partnerId,
   currentUrl,
+  uploadAction = updatePartnerLogo,
+  removeAction = removePartnerLogo,
 }: {
   partnerId: string;
   currentUrl: string | null;
+  // Injectable so the partner dashboard can pass ownership-scoped actions
+  // instead of the admin (requireAdmin) ones. Defaults keep admin usage intact.
+  uploadAction?: LogoUploadAction;
+  removeAction?: LogoRemoveAction;
 }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -45,7 +59,7 @@ export function LogoUploader({
     setBusy(true);
     const fd = new FormData();
     fd.append("file", file);
-    const res = await updatePartnerLogo(partnerId, fd);
+    const res = await uploadAction(partnerId, fd);
     setBusy(false);
     if (res.success && res.logoUrl) {
       setUrl(res.logoUrl);
@@ -58,7 +72,7 @@ export function LogoUploader({
 
   async function handleRemove() {
     setBusy(true);
-    const res = await removePartnerLogo(partnerId);
+    const res = await removeAction(partnerId);
     setBusy(false);
     if (res.success) {
       setUrl(null);

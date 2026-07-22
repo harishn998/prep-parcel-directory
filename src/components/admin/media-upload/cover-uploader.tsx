@@ -31,12 +31,26 @@ const ALLOWED = new Set(["image/png", "image/jpeg", "image/webp"]);
 const MAX_BYTES = 5 * 1024 * 1024;
 const ASPECT = 3; // 3:1 cover banner
 
+type CoverUploadAction = (
+  partnerId: string,
+  formData: FormData
+) => Promise<{ success: boolean; coverUrl?: string; error?: string }>;
+type CoverRemoveAction = (
+  partnerId: string
+) => Promise<{ success: boolean; error?: string }>;
+
 export function CoverUploader({
   partnerId,
   currentUrl,
+  uploadAction = updatePartnerCover,
+  removeAction = removePartnerCover,
 }: {
   partnerId: string;
   currentUrl: string | null;
+  // Injectable (see LogoUploader) — partner dashboard passes ownership-scoped
+  // actions; defaults keep admin usage intact.
+  uploadAction?: CoverUploadAction;
+  removeAction?: CoverRemoveAction;
 }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -100,7 +114,7 @@ export function CoverUploader({
     const fd = new FormData();
     fd.append("file", file);
     if (cropArea) fd.append("cropArea", JSON.stringify(cropArea));
-    const res = await updatePartnerCover(partnerId, fd);
+    const res = await uploadAction(partnerId, fd);
     setBusy(false);
     closeCropper();
     if (res.success && res.coverUrl) {
@@ -133,7 +147,7 @@ export function CoverUploader({
 
   async function handleRemove() {
     setBusy(true);
-    const res = await removePartnerCover(partnerId);
+    const res = await removeAction(partnerId);
     setBusy(false);
     if (res.success) {
       setUrl(null);
